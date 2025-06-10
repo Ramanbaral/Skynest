@@ -13,6 +13,6 @@ export const signUpSchema = z
       .max(100, { error: "password should be less than of length 100." }),
   })
   .refine((data) => data.password === data.confirmPassword, {
-    error: "password and confirmPassword are different.",
+    error: "password and confirm password are different.",
     path: ["confirmPassword"],
   });
