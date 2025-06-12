@@ -54,7 +54,6 @@ export function SigninForm({
         identifier: data.email,
         password: data.password,
       });
-      console.log(signInAttempt);
 
       if (signInAttempt.status === "complete") {
         await setActive({
