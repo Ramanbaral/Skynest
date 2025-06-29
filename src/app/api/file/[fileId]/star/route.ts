@@ -9,7 +9,7 @@ export async function PATCH(
   { params }: { params: { fileId: string } }
 ) {
   try {
-    const { fileId } = params;
+    const { fileId } = params;  
     if (!fileId) {
       return NextResponse.json(
         {
@@ -56,7 +56,7 @@ export async function PATCH(
     return NextResponse.json(
       {
         success: true,
-        message: "File star toogled.",
+        message: "File star toggled.",
       },
       { status: 200 }
     );

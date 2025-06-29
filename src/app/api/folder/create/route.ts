@@ -68,9 +68,15 @@ export async function POST(request: NextRequest) {
     }
 
     const folder: InsertFile = {
-      userId: userIdFromReq,
       name: name.trim(),
-      path: `/folders/${userId}/${uuidv4()}`
+      userId: userIdFromReq,
+      path: `/folders/${userId}/${uuidv4()}`,
+      size: 0,
+      type: "folder",
+      fileUrl: "",
+      thumbnailUrl: null,
+      isFolder: true,
+      parentId: parentId
     };
 
     const [newFolder] = await db.insert(filesTable).values(folder).returning();

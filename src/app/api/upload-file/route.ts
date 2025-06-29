@@ -110,8 +110,8 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const buffer = await file.arrayBuffer();
-    const fileBuffer = Buffer.from(buffer);
+    // const buffer = await file.arrayBuffer();
+    // const fileBuffer = Buffer.from(buffer);
 
     const folderPath = parentId
       ? `/skynest/${userId}/folder/${parentId}`
@@ -140,7 +140,7 @@ export async function POST(req: NextRequest) {
       token,
       signature,
       publicKey,
-      file: fileBuffer,
+      file,
       fileName: uniqueFilename,
       folder: folderPath,
       useUniqueFileName: false,
