@@ -9,6 +9,16 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -26,6 +36,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Input } from "@/components/ui/input";
 import {
   ArrowLeft,
   ArrowUpFromLine,
@@ -138,7 +149,9 @@ export default function Explorer() {
   });
   const [filesAndFolders, setFilesAndFolders] = useState<File[]>([]);
   const [fetchingFiles, setFetchingFiles] = useState(true);
-  const [selectedFileForAction, setSelectedFileForAction] = useState<string | null>(null);
+  const [selectedFileForAction, setSelectedFileForAction] = useState<
+    string | null
+  >(null);
 
   useEffect(() => {
     const fetchFiles = async () => {
@@ -196,9 +209,36 @@ export default function Explorer() {
                   </div>
 
                   <div className="mr-20">
-                    <Button>
-                      <PlusSquare /> New Folder
-                    </Button>
+                    <AlertDialog>
+                      <AlertDialogTrigger asChild>
+                        <Button>
+                          <PlusSquare /> New Folder
+                        </Button>
+                      </AlertDialogTrigger>
+                      <AlertDialogContent>
+                        <AlertDialogCancel asChild>
+                          <button className="absolute right-4 top-4 rounded-full p-1 hover:bg-gray-100">
+                            <X className="h-4 w-4" />
+                          </button>
+                        </AlertDialogCancel>
+                        <AlertDialogHeader>
+                          <AlertDialogTitle>Create New Folder</AlertDialogTitle>
+                          <AlertDialogDescription>
+                            {/* use react hook form to submit form and create a folder (api route - /api/folder/create)  */}
+                            <div className="flex w-full max-w-sm items-center gap-4">
+                              <Input
+                                type="text"
+                                placeholder="Folder Name"
+                                autoFocus
+                              />
+                              <AlertDialogAction type="submit">
+                                <PlusSquare /> Create
+                              </AlertDialogAction>
+                            </div>
+                          </AlertDialogDescription>
+                        </AlertDialogHeader>
+                      </AlertDialogContent>
+                    </AlertDialog>
                   </div>
                 </div>
 
@@ -286,12 +326,14 @@ export default function Explorer() {
                       return (
                         <div
                           key={ind}
-                          className="flex flex-col gap-3 items-start cursor-pointer"
+                          className="flex flex-col gap-3 items-center cursor-pointer"
                           data-id={item.id} // store the unique id of file
                           onContextMenu={(e) => {
                             e.preventDefault();
                             console.log(e.currentTarget.dataset.id);
-                            setSelectedFileForAction(e.currentTarget.dataset.id as string);
+                            setSelectedFileForAction(
+                              e.currentTarget.dataset.id as string
+                            );
                             setIsMenuOpen(!isMenuOpen);
                             setMenuPosition({ x: e.clientX, y: e.clientY });
                           }}
