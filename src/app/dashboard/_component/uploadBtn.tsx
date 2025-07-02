@@ -1,9 +1,10 @@
 "use client";
 import Image from "next/image";
-import { useRef } from "react";
+import { ReactNode, useRef, useState } from "react";
 
 import {
   Dialog,
+  DialogClose,
   DialogContent,
   DialogDescription,
   DialogHeader,
@@ -11,15 +12,44 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { FilePlus2, ImagePlus, Upload, UploadCloud } from "lucide-react";
+import {
+  File as FileIcon,
+  FilePlus2,
+  ImageIcon,
+  ImagePlus,
+  Upload,
+  UploadCloud,
+} from "lucide-react";
 import { toast } from "sonner";
+import axios from "axios";
+import { useAuth } from "@clerk/nextjs";
 
 function UploadButton() {
   const addImageInp = useRef<HTMLInputElement | null>(null);
   const addDocInp = useRef<HTMLInputElement | null>(null);
   const addFileInp = useRef<HTMLInputElement | null>(null);
+  const dialogClose = useRef(null);
+
+  const [files, setFiles] = useState<FileList | null>(null);
+  const { userId } = useAuth();
 
   const MaxFileSizeInBytes = 5 * 1024 * 1024; //5MB
+
+  const uploadFile = async () => {
+    const file = files?.item(0) as File;
+    const data = new FormData();
+    data.set("file", file);
+    data.set("userId", userId as string);
+
+    const uploadReq = await axios.post("/api/upload-file", data);
+    if(uploadReq.data.success) {
+      toast.success("File Uploaded!");
+      dialogClose.current?.click();
+    } else {
+      toast.error(uploadReq.data.message);
+    }
+    setFiles(null);
+  };
 
   return (
     <Dialog>
@@ -45,9 +75,10 @@ function UploadButton() {
               accept="image/*"
               className="absolute right-[9999px]"
               onChange={(e) => {
-                console.log(e.target.files);
                 if (e.target.files?.item(0)?.size > MaxFileSizeInBytes) {
                   toast.error("File Size should be less than 5 MB.");
+                } else {
+                  setFiles(e.target.files);
                 }
               }}
             />
@@ -67,6 +98,8 @@ function UploadButton() {
                 console.log(e.target.files);
                 if (e.target.files?.item(0)?.size > MaxFileSizeInBytes) {
                   toast.error("File Size should be less than 5 MB.");
+                } else {
+                  setFiles(e.target.files);
                 }
               }}
             />
@@ -79,7 +112,11 @@ function UploadButton() {
               <FilePlus2 /> Add Doc
             </Button>
             <div className="grid place-content-center">
-              <div className="flex flex-col items-center justify-center gap-1 w-[25rem] h-[15rem] border border-dashed border-gray-400 my-5 rounded-md">
+              <div
+                className={`flex flex-col items-center justify-center gap-1 w-[25rem] h-[15rem] border border-dashed border-gray-400 mt-5 rounded-md ${
+                  files !== null ? "hidden" : ""
+                }`}
+              >
                 <UploadCloud size={64} className="text-green-400" />
                 <p className="font-semibold">
                   Drag and drop your image, pdf here, or{" "}
@@ -113,7 +150,34 @@ function UploadButton() {
                 <p className="text-sm">File up to 5MB</p>
               </div>
 
-              <Button className="cursor-pointer">
+              {/* selected files container  */}
+              {files && (
+                <div className="w-[25rem] flex flex-col gap-2 border rounded-md my-5 p-2">
+                  <div className="relative w-full flex items-center gap-5 p-2 border border-primary rounded-md">
+                    {files.item(0)?.type == "application/pdf" ? (
+                      <FileIcon size={44} />
+                    ) : (
+                      <ImageIcon size={44} />
+                    )}
+                    <div>
+                      <p className=" overflow-hidden font-semibold">
+                        {files.item(0)?.name.length < 30
+                          ? files.item(0)?.name
+                          : files.item(0)?.name.substring(0, 30) + "..."}
+                      </p>
+                      <p className="text-sm">
+                        {(files.item(0)?.size / (1024 * 1024)).toFixed(2)} MB
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              <Button
+                className="cursor-pointer mt-5"
+                disabled={files === null}
+                onClick={uploadFile}
+              >
                 <Upload /> Upload
               </Button>
             </div>
@@ -126,6 +190,9 @@ function UploadButton() {
             </div>
           </div>
         </DialogContent>
+        <DialogClose ref={dialogClose}>
+
+        </DialogClose>
       </form>
     </Dialog>
   );

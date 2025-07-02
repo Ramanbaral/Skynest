@@ -1,39 +1,10 @@
 import { auth } from "@clerk/nextjs/server";
 import { NextRequest, NextResponse } from "next/server";
-import {
-  ImageKitAbortError,
-  ImageKitInvalidRequestError,
-  ImageKitServerError,
-  ImageKitUploadNetworkError,
-  upload,
-} from "@imagekit/next";
 import { db } from "@/db";
 import { filesTable, InsertFile } from "@/db/schema";
 import { eq, and } from "drizzle-orm";
-import {v4 as uuidv4} from "uuid"
-
-const authenticator = async () => {
-  try {
-    // Perform the request to the upload authentication endpoint.
-    const response = await fetch("/api/upload-auth");
-    if (!response.ok) {
-      // If the server response is not successful, extract the error text for debugging.
-      const errorText = await response.text();
-      throw new Error(
-        `Request failed with status ${response.status}: ${errorText}`
-      );
-    }
-
-    // Parse and destructure the response JSON for upload credentials.
-    const data = await response.json();
-    const { signature, expire, token, publicKey } = data;
-    return { signature, expire, token, publicKey };
-  } catch (error) {
-    // Log the original error for debugging before rethrowing a new error.
-    console.error("Authentication error:", error);
-    throw new Error("Authentication request failed");
-  }
-};
+import { v4 as uuidv4 } from "uuid";
+import axios from "axios";
 
 export async function POST(req: NextRequest) {
   try {
@@ -49,6 +20,7 @@ export async function POST(req: NextRequest) {
     }
 
     const formData = await req.formData();
+    console.log(formData);
     const file = formData.get("file") as File;
     const formUserId = formData.get("userId") as string;
     const parentId = formData.get("parentId") as string;
@@ -98,13 +70,25 @@ export async function POST(req: NextRequest) {
 
     if (
       !(
-        file.type.startsWith("image") && file.type.startsWith("application/pdf")
+        file.type.startsWith("image") || file.type.startsWith("application/pdf")
       )
     ) {
       return NextResponse.json(
         {
           success: false,
           message: "Only images and pdf are supported.",
+        },
+        { status: 400 }
+      );
+    }
+
+    //check for file size should be less than 5 MB;
+    const MAX_FILE_SIZE = 5 * 1024 * 1024;
+    if (file.size > MAX_FILE_SIZE) {
+      return NextResponse.json(
+        {
+          success: false,
+          message: "File too large.",
         },
         { status: 400 }
       );
@@ -117,49 +101,42 @@ export async function POST(req: NextRequest) {
       ? `/skynest/${userId}/folder/${parentId}`
       : `/skynest/${userId}`;
 
-    const fileExtension = file.name.split(".")[-1];
+    const fileExtension = file.name.split(".").pop();
     console.log("File Extension - ", fileExtension);
-    //only allow the allow file extension ["jpg", "jpeg", "png", "pdf", "mp3", "mp4", "txt", "md"]
+    //only allow the allow file extension ["jpg", "jpeg", "png", "pdf", "txt", "md"]
     const uniqueFilename = `${uuidv4()}.${fileExtension}`;
+    console.log(uniqueFilename);
 
-    const abortController = new AbortController();
+    //upload the file to imagekit using their api
+    // -------------------------------------------
 
-    // Retrieve authentication parameters for the upload.
-    let authParams;
-    try {
-      authParams = await authenticator();
-    } catch (authError) {
-      console.error("Failed to authenticate for upload:", authError);
-      return;
-    }
-    const { signature, expire, token, publicKey } = authParams;
+    const data = new FormData();
+    data.set("file", file);
+    data.set("fileName", uniqueFilename);
+    data.set("folder", folderPath);
 
-    const uploadResponse = await upload({
-      // Authentication parameters
-      expire,
-      token,
-      signature,
-      publicKey,
-      file,
-      fileName: uniqueFilename,
-      folder: folderPath,
-      useUniqueFileName: false,
-      // Progress callback to update upload progress state
-      // onProgress: (event) => {
-      //     setProgress((event.loaded / event.total) * 100);
-      // },
-      // Abort signal to allow cancellation of the upload if needed.
-      abortSignal: abortController.signal,
-    });
-    console.log("Upload response:", uploadResponse);
+    const imageKitAuth = Buffer.from(`${process.env.IMAGEKIT_PRIVATE_KEY}:`).toString(
+      "base64"
+    );
+
+    const uploadResponse = await axios.post(
+      "https://upload.imagekit.io/api/v1/files/upload",
+      data,
+      {
+        headers: {
+          Authorization: `Basic ${imageKitAuth}`,
+        },
+      }
+    );
+    console.log(uploadResponse);
 
     const fileData: InsertFile = {
       name: file.name,
-      path: uploadResponse.filePath as string,
+      path: uploadResponse.data.filePath as string,
       size: file.size,
       type: file.type,
-      fileUrl: uploadResponse.url as string,
-      thumbnailUrl: uploadResponse.thumbnailUrl || null,
+      fileUrl: uploadResponse.data.url as string,
+      thumbnailUrl: uploadResponse.data.thumbnailUrl || null,
       userId: userId,
     };
 
@@ -174,20 +151,7 @@ export async function POST(req: NextRequest) {
       { status: 200 }
     );
   } catch (error) {
-    // Handle specific error types provided by the ImageKit SDK.
-    if (error instanceof ImageKitAbortError) {
-      console.error("Upload aborted:", error.reason);
-    } else if (error instanceof ImageKitInvalidRequestError) {
-      console.error("Invalid request:", error.message);
-    } else if (error instanceof ImageKitUploadNetworkError) {
-      console.error("Network error:", error.message);
-    } else if (error instanceof ImageKitServerError) {
-      console.error("Server error:", error.message);
-    } else {
-      // Handle any other errors that may occur.
-      console.error("Upload error:", error);
-    }
-
+    console.log(error);
     return NextResponse.json(
       {
         success: false,

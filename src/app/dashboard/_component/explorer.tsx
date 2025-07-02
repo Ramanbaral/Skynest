@@ -1,3 +1,4 @@
+"use client";
 import Link from "next/link";
 import {
   Breadcrumb,
@@ -8,12 +9,6 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -37,6 +32,7 @@ import {
   DownloadCloud,
   FileIcon,
   LucideHome,
+  PlusSquare,
   StarOff,
   Trash2,
   X,
@@ -44,6 +40,17 @@ import {
 import { Separator } from "@/components/ui/separator";
 import Image from "next/image";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuGroup,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuShortcut,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { useState } from "react";
 
 export default function Explorer() {
   const filesAndFolders = [
@@ -52,7 +59,7 @@ export default function Explorer() {
       type: "folder",
     },
     {
-      name: "Vacation Pokhara",
+      name: "Vacation Pokhara Pokhara PokharaPokharaPokhara",
       type: "folder",
     },
     {
@@ -236,6 +243,12 @@ export default function Explorer() {
     },
   ];
 
+  const [isMenuOpen, setIsMenuOpen] = useState<boolean>(false);
+  const [menuPosition, setMenuPosition] = useState<{ x: number; y: number }>({
+    x: 0,
+    y: 0,
+  });
+
   return (
     <div className="flex flex-col gap-6 mx-10 mt-5">
       <Tabs defaultValue="allfiles">
@@ -259,13 +272,19 @@ export default function Explorer() {
           <Card>
             <CardHeader>
               <div>
-                <div>
-                  <Button variant="outline">
-                    <ArrowLeft size={64} />{" "}
-                  </Button>
-                  <Button className="ml-4">
-                    <LucideHome /> Home
-                  </Button>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <Button variant="outline">
+                      <ArrowLeft size={64} />{" "}
+                    </Button>
+                    <Button className="ml-4">
+                      <LucideHome /> Home
+                    </Button>
+                  </div>
+
+                  <div className="mr-20">
+                    <Button><PlusSquare /> New Folder</Button>
+                  </div>
                 </div>
 
                 <div className="mt-5">
@@ -318,7 +337,7 @@ export default function Explorer() {
                 </div>
               ) : (
                 <ScrollArea className="h-[50vh] w-fit">
-                  <div className="flex flex-wrap items-center gap-5">
+                  <div className="flex flex-wrap items-center gap-10">
                     {filesAndFolders.map((item, ind) => {
                       let icon = "/folder.png";
                       if (item.type === "folder") {
@@ -333,14 +352,51 @@ export default function Explorer() {
                         <div
                           key={ind}
                           className="flex flex-col gap-3 items-start cursor-pointer"
+                          data-id={item.name} // store the unique id of file
+                          onContextMenu={(e) => {
+                            e.preventDefault();
+                            console.log(e.currentTarget.dataset.id);
+                            setIsMenuOpen(!isMenuOpen);
+                            setMenuPosition({ x: e.clientX, y: e.clientY });
+                          }}
+                          onDoubleClick={(e) => {
+                            console.log(e.currentTarget);
+                          }}
                         >
                           <Image src={icon} width={64} height={64} alt="icon" />
-                          <ScrollArea className="w-35 h-10">
+                          <ScrollArea className="max-w-35 h-10">
                             <p>{item.name}</p>
                           </ScrollArea>
                         </div>
                       );
                     })}
+                    <DropdownMenu
+                      open={isMenuOpen}
+                      onOpenChange={setIsMenuOpen}
+                    >
+                      <DropdownMenuContent
+                        className="w-56 absolute"
+                        align="start"
+                        style={{
+                          top: menuPosition.y,
+                          left: menuPosition.x,
+                        }}
+                      >
+                        <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                        <DropdownMenuGroup>
+                          <DropdownMenuItem>
+                            Add to Fav
+                            <DropdownMenuShortcut>⌘F</DropdownMenuShortcut>
+                          </DropdownMenuItem>
+                          <DropdownMenuItem>
+                            Move to Trash
+                            <DropdownMenuShortcut>⌘S</DropdownMenuShortcut>
+                          </DropdownMenuItem>
+                        </DropdownMenuGroup>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem>Rename</DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
                   </div>
                 </ScrollArea>
               )}
