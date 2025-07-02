@@ -19,7 +19,6 @@ export async function GET(req: NextRequest) {
 
     const searchParams = req.nextUrl.searchParams;
     const parentId = searchParams.get("parentId");
-    console.log(parentId);
 
     let allUserFiles: File[];
     if (parentId === null) {
