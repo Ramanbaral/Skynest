@@ -1,6 +1,8 @@
 "use client";
 
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import {
   Breadcrumb,
   BreadcrumbEllipsis,
@@ -54,10 +56,10 @@ import { useEffect, useState } from "react";
 import axios, { AxiosResponse } from "axios";
 import { File } from "@/db/schema";
 import { toast } from "sonner";
-
 import CreateFolder from "./createFolder";
 
 export default function Explorer() {
+  const router = useRouter();
   const invoices = [
     {
       invoice: "INV001",
@@ -142,26 +144,35 @@ export default function Explorer() {
   const [fetchingFiles, setFetchingFiles] = useState(true);
   const [selectedFileForAction, setSelectedFileForAction] = useState<string | null>(null);
 
-  useEffect(() => {
-    const fetchFiles = async () => {
-      try {
-        const fetchFilesResponse: AxiosResponse<{
-          success: boolean;
-          message: string;
-          files: File[];
-        }> = await axios.get("/api/fetch-files");
+  const searchParams = useSearchParams();
+  const parentId = searchParams.get("parentId");
 
-        if (fetchFilesResponse.data.success) {
-          setFilesAndFolders(fetchFilesResponse.data.files);
-        }
-      } catch (e) {
-        console.log(e);
-        toast.error("Problem Fetching Files!", { position: "top-center" });
-      } finally {
-        setFetchingFiles(false);
+  const fetchFiles = async (parentId: string | null) => {
+    try {
+      setFetchingFiles(true);
+      const fetchFilesResponse: AxiosResponse<{
+        success: boolean;
+        message: string;
+        files: File[];
+      }> = await axios.get("/api/fetch-files", {
+        params: {
+          parentId,
+        },
+      });
+
+      if (fetchFilesResponse.data.success) {
+        setFilesAndFolders(fetchFilesResponse.data.files);
       }
-    };
-    fetchFiles();
+    } catch (e) {
+      console.log(e);
+      toast.error("Problem Fetching Files!", { position: "top-center" });
+    } finally {
+      setFetchingFiles(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchFiles(parentId);
   }, []);
 
   return (
@@ -285,6 +296,7 @@ export default function Explorer() {
                           key={ind}
                           className="flex flex-col gap-3 items-center cursor-pointer"
                           data-id={item.id} // store the unique id of file
+                          data-filetype={item.type}
                           onContextMenu={(e) => {
                             e.preventDefault();
                             console.log(e.currentTarget.dataset.id);
@@ -295,7 +307,10 @@ export default function Explorer() {
                             setMenuPosition({ x: e.clientX, y: e.clientY });
                           }}
                           onDoubleClick={(e) => {
-                            console.log(e.currentTarget);
+                            if (e.currentTarget.dataset.filetype === "folder") {
+                              router.push(`/dashboard?parentId=${item.id}`);
+                              fetchFiles(item.id);
+                            }
                           }}
                         >
                           {item.thumbnailUrl ? (
@@ -325,13 +340,14 @@ export default function Explorer() {
                       >
                         <DropdownMenuLabel>Actions</DropdownMenuLabel>
                         <DropdownMenuGroup>
+                          <DropdownMenuItem>Open</DropdownMenuItem>
                           <DropdownMenuItem>
                             Add to Fav
                             <DropdownMenuShortcut>⌘F</DropdownMenuShortcut>
                           </DropdownMenuItem>
                           <DropdownMenuItem>
                             Move to Trash
-                            <DropdownMenuShortcut>⌘S</DropdownMenuShortcut>
+                            <DropdownMenuShortcut>⌘T</DropdownMenuShortcut>
                           </DropdownMenuItem>
                         </DropdownMenuGroup>
                         <DropdownMenuSeparator />

@@ -1,6 +1,6 @@
 "use client";
 import Image from "next/image";
-import { ReactNode, useRef, useState } from "react";
+import { useRef, useState } from "react";
 
 import {
   Dialog,
