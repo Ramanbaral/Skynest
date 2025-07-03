@@ -19,8 +19,7 @@ export default async function UserProfile() {
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <div className="inline-flex items-center gap-1.5 cursor-default">
-          <span>Welcome, {user?.emailAddresses[0].emailAddress}</span>{" "}
-          <ChevronDown />
+          <span>Welcome, {user?.emailAddresses[0].emailAddress}</span> <ChevronDown />
         </div>
       </DropdownMenuTrigger>
       <DropdownMenuContent className="w-56" align="start">

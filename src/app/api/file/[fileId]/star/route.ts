@@ -6,17 +6,17 @@ import { filesTable } from "@/db/schema";
 
 export async function PATCH(
   req: NextRequest,
-  { params }: { params: { fileId: string } }
+  { params }: { params: { fileId: string } },
 ) {
   try {
-    const { fileId } = params;  
+    const { fileId } = params;
     if (!fileId) {
       return NextResponse.json(
         {
           success: false,
           message: "file id is required.",
         },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -27,7 +27,7 @@ export async function PATCH(
           success: false,
           message: "Not authenticated",
         },
-        { status: 401 }
+        { status: 401 },
       );
     }
 
@@ -42,7 +42,7 @@ export async function PATCH(
           success: false,
           message: "File doesn't exits",
         },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -58,7 +58,7 @@ export async function PATCH(
         success: true,
         message: "File star toggled.",
       },
-      { status: 200 }
+      { status: 200 },
     );
   } catch (e) {
     console.log(e);
@@ -67,7 +67,7 @@ export async function PATCH(
         success: false,
         message: "Error while staring a file.",
       },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

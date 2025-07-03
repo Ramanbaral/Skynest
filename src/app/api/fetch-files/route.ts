@@ -13,7 +13,7 @@ export async function GET(req: NextRequest) {
           success: false,
           message: "Not authenticated",
         },
-        { status: 401 }
+        { status: 401 },
       );
     }
 
@@ -30,9 +30,7 @@ export async function GET(req: NextRequest) {
       allUserFiles = await db
         .select()
         .from(filesTable)
-        .where(
-          and(eq(filesTable.parentId, parentId), eq(filesTable.userId, userId))
-        );
+        .where(and(eq(filesTable.parentId, parentId), eq(filesTable.userId, userId)));
     }
 
     return NextResponse.json(
@@ -41,7 +39,7 @@ export async function GET(req: NextRequest) {
         message: "Fetched all files of folder.",
         files: allUserFiles,
       },
-      { status: 200 }
+      { status: 200 },
     );
   } catch (e) {
     return NextResponse.json(
@@ -49,7 +47,7 @@ export async function GET(req: NextRequest) {
         success: false,
         message: "Error fetching files",
       },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

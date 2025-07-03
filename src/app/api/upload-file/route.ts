@@ -15,7 +15,7 @@ export async function POST(req: NextRequest) {
           success: false,
           message: "Not authenticated",
         },
-        { status: 401 }
+        { status: 401 },
       );
     }
 
@@ -31,7 +31,7 @@ export async function POST(req: NextRequest) {
           success: false,
           message: "Not authenticated",
         },
-        { status: 401 }
+        { status: 401 },
       );
     }
 
@@ -41,7 +41,7 @@ export async function POST(req: NextRequest) {
           success: false,
           message: "No file provided.",
         },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -53,8 +53,8 @@ export async function POST(req: NextRequest) {
           and(
             eq(filesTable.id, parentId),
             eq(filesTable.userId, userId),
-            eq(filesTable.isFolder, true)
-          )
+            eq(filesTable.isFolder, true),
+          ),
         );
 
       if (!parentFolder) {
@@ -63,22 +63,18 @@ export async function POST(req: NextRequest) {
             success: false,
             message: "Invalid parentId.",
           },
-          { status: 400 }
+          { status: 400 },
         );
       }
     }
 
-    if (
-      !(
-        file.type.startsWith("image") || file.type.startsWith("application/pdf")
-      )
-    ) {
+    if (!(file.type.startsWith("image") || file.type.startsWith("application/pdf"))) {
       return NextResponse.json(
         {
           success: false,
           message: "Only images and pdf are supported.",
         },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -90,7 +86,7 @@ export async function POST(req: NextRequest) {
           success: false,
           message: "File too large.",
         },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -116,7 +112,7 @@ export async function POST(req: NextRequest) {
     data.set("folder", folderPath);
 
     const imageKitAuth = Buffer.from(`${process.env.IMAGEKIT_PRIVATE_KEY}:`).toString(
-      "base64"
+      "base64",
     );
 
     const uploadResponse = await axios.post(
@@ -126,7 +122,7 @@ export async function POST(req: NextRequest) {
         headers: {
           Authorization: `Basic ${imageKitAuth}`,
         },
-      }
+      },
     );
     console.log(uploadResponse);
 
@@ -148,7 +144,7 @@ export async function POST(req: NextRequest) {
         message: "file uploaded successfully.",
         newFile,
       },
-      { status: 200 }
+      { status: 200 },
     );
   } catch (error) {
     console.log(error);
@@ -157,7 +153,7 @@ export async function POST(req: NextRequest) {
         success: false,
         message: "Problem uploading file.",
       },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

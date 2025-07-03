@@ -23,11 +23,7 @@ export default function SignupPage() {
         </div>
         <div className="flex flex-1 items-center justify-center">
           <div className="w-full max-w-xs">
-            {verifying ? (
-              <InputOTPForm />
-            ) : (
-              <SignupForm setVerifying={setVerifying} />
-            )}
+            {verifying ? <InputOTPForm /> : <SignupForm setVerifying={setVerifying} />}
           </div>
         </div>
       </div>

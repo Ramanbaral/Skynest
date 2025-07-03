@@ -1,4 +1,5 @@
 "use client";
+
 import Link from "next/link";
 import {
   Breadcrumb,
@@ -9,16 +10,6 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -36,14 +27,12 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Input } from "@/components/ui/input";
 import {
   ArrowLeft,
   ArrowUpFromLine,
   DownloadCloud,
   FileIcon,
   LucideHome,
-  PlusSquare,
   StarOff,
   Trash2,
   X,
@@ -65,6 +54,8 @@ import { useEffect, useState } from "react";
 import axios, { AxiosResponse } from "axios";
 import { File } from "@/db/schema";
 import { toast } from "sonner";
+
+import CreateFolder from "./createFolder";
 
 export default function Explorer() {
   const invoices = [
@@ -149,9 +140,7 @@ export default function Explorer() {
   });
   const [filesAndFolders, setFilesAndFolders] = useState<File[]>([]);
   const [fetchingFiles, setFetchingFiles] = useState(true);
-  const [selectedFileForAction, setSelectedFileForAction] = useState<
-    string | null
-  >(null);
+  const [selectedFileForAction, setSelectedFileForAction] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchFiles = async () => {
@@ -208,38 +197,7 @@ export default function Explorer() {
                     </Button>
                   </div>
 
-                  <div className="mr-20">
-                    <AlertDialog>
-                      <AlertDialogTrigger asChild>
-                        <Button>
-                          <PlusSquare /> New Folder
-                        </Button>
-                      </AlertDialogTrigger>
-                      <AlertDialogContent>
-                        <AlertDialogCancel asChild>
-                          <button className="absolute right-4 top-4 rounded-full p-1 hover:bg-gray-100">
-                            <X className="h-4 w-4" />
-                          </button>
-                        </AlertDialogCancel>
-                        <AlertDialogHeader>
-                          <AlertDialogTitle>Create New Folder</AlertDialogTitle>
-                          <AlertDialogDescription>
-                            {/* use react hook form to submit form and create a folder (api route - /api/folder/create)  */}
-                            <div className="flex w-full max-w-sm items-center gap-4">
-                              <Input
-                                type="text"
-                                placeholder="Folder Name"
-                                autoFocus
-                              />
-                              <AlertDialogAction type="submit">
-                                <PlusSquare /> Create
-                              </AlertDialogAction>
-                            </div>
-                          </AlertDialogDescription>
-                        </AlertDialogHeader>
-                      </AlertDialogContent>
-                    </AlertDialog>
-                  </div>
+                  <CreateFolder setFilesAndFolders={setFilesAndFolders} />
                 </div>
 
                 <div className="mt-5">
@@ -306,8 +264,7 @@ export default function Explorer() {
                   <FileIcon size={64} className="text-primary" />
                   <p className="font-semibold">No files available</p>
                   <p className="text-sm">
-                    Upload your first file to get started with your personal
-                    cloud storage
+                    Upload your first file to get started with your personal cloud storage
                   </p>
                 </div>
               ) : (
@@ -332,7 +289,7 @@ export default function Explorer() {
                             e.preventDefault();
                             console.log(e.currentTarget.dataset.id);
                             setSelectedFileForAction(
-                              e.currentTarget.dataset.id as string
+                              e.currentTarget.dataset.id as string,
                             );
                             setIsMenuOpen(!isMenuOpen);
                             setMenuPosition({ x: e.clientX, y: e.clientY });
@@ -349,12 +306,7 @@ export default function Explorer() {
                               alt="icon"
                             />
                           ) : (
-                            <Image
-                              src={icon}
-                              width={64}
-                              height={64}
-                              alt="icon"
-                            />
+                            <Image src={icon} width={64} height={64} alt="icon" />
                           )}
                           <ScrollArea className="max-w-35 h-10">
                             <p>{item.name}</p>
@@ -362,10 +314,7 @@ export default function Explorer() {
                         </div>
                       );
                     })}
-                    <DropdownMenu
-                      open={isMenuOpen}
-                      onOpenChange={setIsMenuOpen}
-                    >
+                    <DropdownMenu open={isMenuOpen} onOpenChange={setIsMenuOpen}>
                       <DropdownMenuContent
                         className="w-56 absolute"
                         align="start"
@@ -422,12 +371,7 @@ export default function Explorer() {
                     {invoices.map((invoice) => (
                       <TableRow key={invoice.invoice}>
                         <TableCell className="font-medium flex items-center gap-2">
-                          <Image
-                            src="/pdf.png"
-                            width={64}
-                            height={64}
-                            alt="img"
-                          />
+                          <Image src="/pdf.png" width={64} height={64} alt="img" />
                           headshot.jpg
                         </TableCell>
                         <TableCell>Image/Png</TableCell>
@@ -486,12 +430,7 @@ export default function Explorer() {
                     {invoices.map((invoice) => (
                       <TableRow key={invoice.invoice}>
                         <TableCell className="font-medium flex items-center gap-2">
-                          <Image
-                            src="/pdf.png"
-                            width={64}
-                            height={64}
-                            alt="img"
-                          />
+                          <Image src="/pdf.png" width={64} height={64} alt="img" />
                           headshot.jpg
                         </TableCell>
                         <TableCell>Image/Png</TableCell>

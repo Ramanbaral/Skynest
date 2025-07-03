@@ -93,12 +93,7 @@ export function SignupForm({
           <div className="flex items-center">
             <Label htmlFor="password">Password</Label>
           </div>
-          <Input
-            {...register("password")}
-            id="password"
-            type="password"
-            required
-          />
+          <Input {...register("password")} id="password" type="password" required />
           <p className="text-destructive text-sm">{errors.password?.message}</p>
         </div>
         <div className="grid gap-2">
@@ -109,9 +104,7 @@ export function SignupForm({
             type="password"
             required
           />
-          <p className="text-destructive text-sm">
-            {errors.confirmPassword?.message}
-          </p>
+          <p className="text-destructive text-sm">{errors.confirmPassword?.message}</p>
         </div>
         <Button type="submit" className="w-full">
           {isSubmitting ? (

@@ -22,10 +22,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
-export function SigninForm({
-  className,
-  ...props
-}: React.ComponentProps<"div">) {
+export function SigninForm({ className, ...props }: React.ComponentProps<"div">) {
   type SignInFormData = z.infer<typeof signInSchema>;
 
   const router = useRouter();
@@ -97,9 +94,7 @@ export function SigninForm({
                   placeholder="m@example.com"
                   required
                 />
-                <p className="text-destructive text-sm">
-                  {errors.email?.message}
-                </p>
+                <p className="text-destructive text-sm">{errors.email?.message}</p>
               </div>
               <div className="grid gap-3">
                 <div className="flex items-center">
@@ -118,9 +113,7 @@ export function SigninForm({
                   type="password"
                   required
                 />
-                <p className="text-destructive text-sm">
-                  {errors.password?.message}
-                </p>
+                <p className="text-destructive text-sm">{errors.password?.message}</p>
               </div>
               <div className="flex flex-col gap-3">
                 <Button type="submit" className="w-full">

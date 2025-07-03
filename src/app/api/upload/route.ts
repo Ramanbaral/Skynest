@@ -12,7 +12,7 @@ export async function POST(request: NextRequest) {
           success: false,
           message: "Unauthorized Access",
         },
-        { status: 401 }
+        { status: 401 },
       );
     }
 
@@ -24,7 +24,7 @@ export async function POST(request: NextRequest) {
           success: false,
           message: "Unauthorized Access",
         },
-        { status: 401 }
+        { status: 401 },
       );
     }
 
@@ -34,7 +34,7 @@ export async function POST(request: NextRequest) {
           success: false,
           message: "Invalid File upload",
         },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -65,7 +65,7 @@ export async function POST(request: NextRequest) {
         success: false,
         message: "Failed to upload file.",
       },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

@@ -6,7 +6,6 @@ import UploadButton from "./_component/uploadBtn";
 import StorageInfo from "./_component/StorageInfo";
 
 export default async function Dashboard() {
-
   return (
     <div>
       <div className="w-screen flex justify-between items-center px-20 py-5 border border-accent">

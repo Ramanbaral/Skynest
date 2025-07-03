@@ -3,7 +3,7 @@ import { auth } from "@clerk/nextjs/server";
 import { eq, and } from "drizzle-orm";
 import { filesTable, InsertFile } from "@/db/schema";
 import { NextRequest, NextResponse } from "next/server";
-import { v4 as uuidv4 } from 'uuid';
+import { v4 as uuidv4 } from "uuid";
 
 export async function POST(request: NextRequest) {
   try {
@@ -14,15 +14,11 @@ export async function POST(request: NextRequest) {
           success: false,
           message: "Unauthorized Access",
         },
-        { status: 401 }
+        { status: 401 },
       );
     }
 
-    const {
-      name,
-      userId: userIdFromReq,
-      parentId = null,
-    } = await request.json();
+    const { name, userId: userIdFromReq, parentId = null } = await request.json();
 
     if (userId !== userIdFromReq) {
       return NextResponse.json(
@@ -30,7 +26,7 @@ export async function POST(request: NextRequest) {
           success: false,
           message: "Unauthorized Access",
         },
-        { status: 401 }
+        { status: 401 },
       );
     }
 
@@ -40,7 +36,7 @@ export async function POST(request: NextRequest) {
           success: false,
           message: "Folder name is required.",
         },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -52,8 +48,8 @@ export async function POST(request: NextRequest) {
           and(
             eq(filesTable.id, parentId),
             eq(filesTable.userId, userIdFromReq),
-            eq(filesTable.isFolder, true)
-          )
+            eq(filesTable.isFolder, true),
+          ),
         );
 
       if (!parentFolder) {
@@ -62,7 +58,7 @@ export async function POST(request: NextRequest) {
             success: false,
             message: "Parent folder not valid.",
           },
-          { status: 400 }
+          { status: 400 },
         );
       }
     }
@@ -76,7 +72,7 @@ export async function POST(request: NextRequest) {
       fileUrl: "",
       thumbnailUrl: null,
       isFolder: true,
-      parentId: parentId
+      parentId: parentId,
     };
 
     const [newFolder] = await db.insert(filesTable).values(folder).returning();
@@ -87,7 +83,7 @@ export async function POST(request: NextRequest) {
         message: "New Folder Created.",
         folder: newFolder,
       },
-      { status: 200 }
+      { status: 200 },
     );
   } catch (e) {
     return NextResponse.json(
@@ -95,7 +91,7 @@ export async function POST(request: NextRequest) {
         success: "false",
         message: "Problem creating new folder.",
       },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

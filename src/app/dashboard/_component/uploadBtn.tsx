@@ -42,7 +42,7 @@ function UploadButton() {
     data.set("userId", userId as string);
 
     const uploadReq = await axios.post("/api/upload-file", data);
-    if(uploadReq.data.success) {
+    if (uploadReq.data.success) {
       toast.success("File Uploaded!");
       dialogClose.current?.click();
     } else {
@@ -190,9 +190,7 @@ function UploadButton() {
             </div>
           </div>
         </DialogContent>
-        <DialogClose ref={dialogClose}>
-
-        </DialogClose>
+        <DialogClose ref={dialogClose}></DialogClose>
       </form>
     </Dialog>
   );

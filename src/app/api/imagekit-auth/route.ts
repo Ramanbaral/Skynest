@@ -11,7 +11,7 @@ export async function GET() {
           success: false,
           message: "Unauthorized Access",
         },
-        { status: 401 }
+        { status: 401 },
       );
     }
 
@@ -29,9 +29,12 @@ export async function GET() {
       publicKey: process.env.IMAGEKIT_PUBLIC_KEY,
     });
   } catch (e) {
-    return NextResponse.json({
-      success: false,
-      message: "Failed to authenticate imagekit.",
-    }, {status: 500});
+    return NextResponse.json(
+      {
+        success: false,
+        message: "Failed to authenticate imagekit.",
+      },
+      { status: 500 },
+    );
   }
 }
