@@ -203,7 +203,13 @@ export default function Explorer() {
                     <Button variant="outline">
                       <ArrowLeft size={64} />{" "}
                     </Button>
-                    <Button className="ml-4">
+                    <Button
+                      className="ml-4"
+                      onClick={() => {
+                        router.push("/dashboard");
+                        fetchFiles(null);
+                      }}
+                    >
                       <LucideHome /> Home
                     </Button>
                   </div>
