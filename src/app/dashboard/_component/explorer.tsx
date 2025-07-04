@@ -57,6 +57,7 @@ import axios, { AxiosResponse } from "axios";
 import { File } from "@/db/schema";
 import { toast } from "sonner";
 import CreateFolder from "./createFolder";
+import { useFilesAndFoldersStore } from "@/providers/filesAndFoldersStoreProvider";
 
 export default function Explorer() {
   const router = useRouter();
@@ -140,16 +141,20 @@ export default function Explorer() {
     x: 0,
     y: 0,
   });
-  const [filesAndFolders, setFilesAndFolders] = useState<File[]>([]);
+  // const [filesAndFolders, setFilesAndFolders] = useState<File[]>([]);
   const [fetchingFiles, setFetchingFiles] = useState(true);
   const [selectedFileForAction, setSelectedFileForAction] = useState<string | null>(null);
+
+  const { filesAndFolders, setFilesAndFolders } = useFilesAndFoldersStore(
+    (state) => state,
+  );
 
   const searchParams = useSearchParams();
   const parentId = searchParams.get("parentId");
 
   const fetchFiles = async (parentId: string | null) => {
     try {
-      setFetchingFiles(true);
+      setFetchingFiles(false);
       const fetchFilesResponse: AxiosResponse<{
         success: boolean;
         message: string;
@@ -214,7 +219,7 @@ export default function Explorer() {
                     </Button>
                   </div>
 
-                  <CreateFolder setFilesAndFolders={setFilesAndFolders} />
+                  <CreateFolder />
                 </div>
 
                 <div className="mt-5">

@@ -20,7 +20,6 @@ export async function POST(req: NextRequest) {
     }
 
     const formData = await req.formData();
-    console.log(formData);
     const file = formData.get("file") as File;
     const formUserId = formData.get("userId") as string;
     const parentId = formData.get("parentId") as string;
@@ -98,10 +97,8 @@ export async function POST(req: NextRequest) {
       : `/skynest/${userId}`;
 
     const fileExtension = file.name.split(".").pop();
-    console.log("File Extension - ", fileExtension);
     //only allow the allow file extension ["jpg", "jpeg", "png", "pdf", "txt", "md"]
     const uniqueFilename = `${uuidv4()}.${fileExtension}`;
-    console.log(uniqueFilename);
 
     //upload the file to imagekit using their api
     // -------------------------------------------
@@ -124,13 +121,13 @@ export async function POST(req: NextRequest) {
         },
       },
     );
-    console.log(uploadResponse);
 
     const fileData: InsertFile = {
       name: file.name,
       path: uploadResponse.data.filePath as string,
       size: file.size,
       type: file.type,
+      parentId: parentId,
       fileUrl: uploadResponse.data.url as string,
       thumbnailUrl: uploadResponse.data.thumbnailUrl || null,
       userId: userId,
@@ -142,12 +139,12 @@ export async function POST(req: NextRequest) {
       {
         success: true,
         message: "file uploaded successfully.",
-        newFile,
+        newFile: newFile[0],
       },
       { status: 200 },
     );
-  } catch (error) {
-    console.log(error);
+  } catch (e) {
+    console.log(e);
     return NextResponse.json(
       {
         success: false,

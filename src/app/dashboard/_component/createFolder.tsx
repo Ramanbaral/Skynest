@@ -23,36 +23,14 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import z from "zod/v4";
 import axios from "axios";
 import { toast } from "sonner";
+import { useFilesAndFoldersStore } from "@/providers/filesAndFoldersStoreProvider";
 
-import type { Dispatch, SetStateAction } from "react";
-
-interface ICreateFolderProps {
-  setFilesAndFolders: Dispatch<
-    SetStateAction<
-      {
-        parentId: string | null;
-        type: string;
-        id: string;
-        name: string;
-        userId: string;
-        path: string;
-        size: number;
-        fileUrl: string;
-        thumbnailUrl: string | null;
-        isFolder: boolean;
-        isStarred: boolean;
-        isTrash: boolean;
-        createdAt: Date;
-        updatedAt: Date;
-      }[]
-    >
-  >;
-}
-
-export default function CreateFolder({ setFilesAndFolders }: ICreateFolderProps) {
+export default function CreateFolder() {
   const { user } = useUser();
   const searchParams = useSearchParams();
   const parentId = searchParams.get("parentId");
+
+  const { addFilesAndFolders } = useFilesAndFoldersStore((state) => state);
 
   const formSchema = z.object({
     folderName: folderNameSchema,
@@ -84,11 +62,7 @@ export default function CreateFolder({ setFilesAndFolders }: ICreateFolderProps)
           position: "top-center",
         });
         //display new folder to user
-        setFilesAndFolders((prev) => {
-          const newList = [...prev];
-          newList.push(createFolderResponse.data.folder);
-          return newList;
-        });
+        addFilesAndFolders(createFolderResponse.data.folder);
       }
     } catch {
       toast.error(`Problem Creating Folder`, {
