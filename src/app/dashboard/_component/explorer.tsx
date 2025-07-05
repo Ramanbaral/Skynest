@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { useRouter } from "next/navigation";
 import {
@@ -9,7 +8,6 @@ import {
   BreadcrumbItem,
   BreadcrumbLink,
   BreadcrumbList,
-  BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
 import { Button } from "@/components/ui/button";
@@ -32,6 +30,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   ArrowLeft,
   ArrowUpFromLine,
+  CircleX,
   DownloadCloud,
   FileIcon,
   LucideHome,
@@ -136,14 +135,24 @@ export default function Explorer() {
     },
   ];
 
+  const [isFetchFileAndFoldersError, setIsFetchFileAndFoldersError] = useState(false);
+  const [fetchingFiles, setFetchingFiles] = useState(true);
   const [isMenuOpen, setIsMenuOpen] = useState<boolean>(false);
   const [menuPosition, setMenuPosition] = useState<{ x: number; y: number }>({
     x: 0,
     y: 0,
   });
-  // const [filesAndFolders, setFilesAndFolders] = useState<File[]>([]);
-  const [fetchingFiles, setFetchingFiles] = useState(true);
+  const [currentLocation, setCurrentLocation] = useState<{
+    name: string;
+    id: string | null;
+  }>({ name: "Home", id: null });
+  const [folderTraverseHistory, setFolderTraverseHistory] = useState<
+    { name: string; id: string | null }[]
+  >([]);
   const [selectedFileForAction, setSelectedFileForAction] = useState<string | null>(null);
+  const [currentHighlightedFile, setCurrentHighlightedFile] = useState<string | null>(
+    null,
+  );
 
   const { filesAndFolders, setFilesAndFolders } = useFilesAndFoldersStore(
     (state) => state,
@@ -152,9 +161,57 @@ export default function Explorer() {
   const searchParams = useSearchParams();
   const parentId = searchParams.get("parentId");
 
+  const addFolderToHistory = (id: string, name: string) => {
+    setFolderTraverseHistory((prevState) => {
+      return [...prevState, currentLocation];
+    });
+    setCurrentLocation({ id, name });
+    router.push(`/dashboard?parentId=${id}`);
+    fetchFiles(id);
+  };
+
+  const goBack = () => {
+    const lastFolder = folderTraverseHistory.at(-1) as {
+      name: string;
+      id: string | null;
+    };
+    setFolderTraverseHistory((prevState) => {
+      return prevState.slice(0, -1);
+    });
+    setCurrentLocation(lastFolder);
+    router.push(
+      lastFolder.id === null ? "/dashboard" : `/dashboard?parentId=${lastFolder.id}`,
+    );
+    fetchFiles(lastFolder.id);
+  };
+
+  const gotoFolder = (id: string | null, folderName: string) => {
+    if (id === null) gotoHome();
+    else {
+      setFolderTraverseHistory((prevState) => {
+        const newFolderTraverseHistory: { name: string; id: string | null }[] = [];
+        for (const folder of prevState) {
+          if (folder.id !== id) newFolderTraverseHistory.push(folder);
+          else break;
+        }
+        return newFolderTraverseHistory;
+      });
+      setCurrentLocation({ name: folderName, id: id });
+      router.push(id === null ? "/dashboard" : `/dashboard?parentId=${id}`);
+      fetchFiles(id);
+    }
+  };
+
+  const gotoHome = () => {
+    setFolderTraverseHistory([]);
+    setCurrentLocation({ name: "Home", id: null });
+    router.push("/dashboard");
+    fetchFiles(null);
+  };
+
   const fetchFiles = async (parentId: string | null) => {
     try {
-      setFetchingFiles(false);
+      setFetchingFiles(true);
       const fetchFilesResponse: AxiosResponse<{
         success: boolean;
         message: string;
@@ -170,6 +227,7 @@ export default function Explorer() {
       }
     } catch (e) {
       console.log(e);
+      setIsFetchFileAndFoldersError(true);
       toast.error("Problem Fetching Files!", { position: "top-center" });
     } finally {
       setFetchingFiles(false);
@@ -205,16 +263,16 @@ export default function Explorer() {
               <div>
                 <div className="flex items-center justify-between">
                   <div>
-                    <Button variant="outline">
-                      <ArrowLeft size={64} />{" "}
-                    </Button>
                     <Button
-                      className="ml-4"
+                      variant="outline"
+                      disabled={folderTraverseHistory.length === 0}
                       onClick={() => {
-                        router.push("/dashboard");
-                        fetchFiles(null);
+                        goBack();
                       }}
                     >
+                      <ArrowLeft size={64} />{" "}
+                    </Button>
+                    <Button className="ml-4" onClick={gotoHome}>
                       <LucideHome /> Home
                     </Button>
                   </div>
@@ -222,41 +280,57 @@ export default function Explorer() {
                   <CreateFolder />
                 </div>
 
-                <div className="mt-5">
-                  <Breadcrumb>
-                    <BreadcrumbList>
-                      <BreadcrumbItem>
-                        <BreadcrumbLink asChild>
-                          <Link href="/">Home</Link>
-                        </BreadcrumbLink>
-                      </BreadcrumbItem>
-                      <BreadcrumbSeparator />
-                      <BreadcrumbItem>
-                        <DropdownMenu>
-                          <DropdownMenuTrigger className="flex items-center gap-1">
-                            <BreadcrumbEllipsis className="size-4" />
-                            <span className="sr-only">Toggle menu</span>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent align="start">
-                            <DropdownMenuItem>Documentation</DropdownMenuItem>
-                            <DropdownMenuItem>Themes</DropdownMenuItem>
-                            <DropdownMenuItem>GitHub</DropdownMenuItem>
-                          </DropdownMenuContent>
-                        </DropdownMenu>
-                      </BreadcrumbItem>
-                      <BreadcrumbSeparator />
-                      <BreadcrumbItem>
-                        <BreadcrumbLink asChild>
-                          <Link href="/docs/components">Components</Link>
-                        </BreadcrumbLink>
-                      </BreadcrumbItem>
-                      <BreadcrumbSeparator />
-                      <BreadcrumbItem>
-                        <BreadcrumbPage>Breadcrumb</BreadcrumbPage>
-                      </BreadcrumbItem>
-                    </BreadcrumbList>
-                  </Breadcrumb>
-                </div>
+                {folderTraverseHistory.length > 0 ? (
+                  <div className="mt-5">
+                    <Breadcrumb>
+                      <BreadcrumbList>
+                        {folderTraverseHistory.map((folder, ind) => {
+                          return (
+                            <BreadcrumbItem key={ind}>
+                              <BreadcrumbLink asChild>
+                                <p
+                                  className="cursor-default"
+                                  data-id={folder.id}
+                                  data-name={folder.name}
+                                  onClick={(e) => {
+                                    const id =
+                                      e.currentTarget.dataset.id === undefined
+                                        ? null
+                                        : e.currentTarget.dataset.id;
+                                    const name = e.currentTarget.dataset.name as string;
+
+                                    gotoFolder(id, name);
+                                  }}
+                                >
+                                  {folder.name}
+                                </p>
+                              </BreadcrumbLink>
+                              {ind !== folderTraverseHistory.length - 1 && (
+                                <BreadcrumbSeparator />
+                              )}
+                            </BreadcrumbItem>
+                          );
+                        })}
+
+                        {/* <BreadcrumbItem>
+                          <DropdownMenu>
+                            <DropdownMenuTrigger className="flex items-center gap-1">
+                              <BreadcrumbEllipsis className="size-4" />
+                              <span className="sr-only">Toggle menu</span>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="start">
+                              <DropdownMenuItem>Documentation</DropdownMenuItem>
+                              <DropdownMenuItem>Themes</DropdownMenuItem>
+                              <DropdownMenuItem>GitHub</DropdownMenuItem>
+                            </DropdownMenuContent>
+                          </DropdownMenu>
+                        </BreadcrumbItem> */}
+                      </BreadcrumbList>
+                    </Breadcrumb>
+                  </div>
+                ) : (
+                  ""
+                )}
               </div>
             </CardHeader>
             <Separator />
@@ -280,6 +354,12 @@ export default function Explorer() {
                     />
                   </svg>
                   <span className="sr-only">Loading...</span>
+                </div>
+              ) : isFetchFileAndFoldersError ? (
+                <div className="flex flex-col gap-2 items-center justify-center">
+                  <CircleX size={64} className="text-destructive" />
+                  <p className="font-semibold">Problem Fetching Files</p>
+                  <p className="text-sm">please try later!</p>
                 </div>
               ) : filesAndFolders.length === 0 ? (
                 <div className="flex flex-col gap-2 items-center justify-center">
@@ -305,12 +385,15 @@ export default function Explorer() {
                       return (
                         <div
                           key={ind}
-                          className="flex flex-col gap-3 items-center cursor-pointer"
+                          className={`flex flex-col gap-3 items-center p-2 cursor-pointer rounded-md ${currentHighlightedFile === item.id ? "bg-accent" : ""} `}
                           data-id={item.id} // store the unique id of file
                           data-filetype={item.type}
                           onContextMenu={(e) => {
                             e.preventDefault();
                             console.log(e.currentTarget.dataset.id);
+                            setCurrentHighlightedFile(
+                              e.currentTarget.dataset.id as string,
+                            );
                             setSelectedFileForAction(
                               e.currentTarget.dataset.id as string,
                             );
@@ -319,9 +402,13 @@ export default function Explorer() {
                           }}
                           onDoubleClick={(e) => {
                             if (e.currentTarget.dataset.filetype === "folder") {
-                              router.push(`/dashboard?parentId=${item.id}`);
-                              fetchFiles(item.id);
+                              addFolderToHistory(item.id, item.name);
                             }
+                          }}
+                          onClick={(e) => {
+                            setCurrentHighlightedFile(
+                              e.currentTarget.dataset.id as string,
+                            );
                           }}
                         >
                           {item.thumbnailUrl ? (

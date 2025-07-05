@@ -29,9 +29,7 @@ export const createFilesAndFoldersStore = (
     },
     addFilesAndFolders: (newFileOrFolder: File) =>
       set((state) => {
-        state.filesAndFolders.unshift(newFileOrFolder);
-        console.log(state.filesAndFolders);
-        return { filesAndFolders: state.filesAndFolders };
+        return { filesAndFolders: [newFileOrFolder, ...state.filesAndFolders] };
       }),
     removeFilesAndFolders: (fileOrFolderId: string) =>
       set((state) => ({
