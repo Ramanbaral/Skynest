@@ -36,9 +36,8 @@ function FavFiles() {
       setFetchingFiles(true);
       const favRes = await axios.get("/api/fetch-fav");
       if (favRes.data.success) {
-        toast.success("Fetched All FAV Files.", { position: "top-center" });
+        setFavFiles(favRes.data.favFiles);
       }
-      setFavFiles(favRes.data.favFiles);
     } catch (error) {
       console.error(error);
       toast.error("Something went Wrong!", { position: "top-center" });

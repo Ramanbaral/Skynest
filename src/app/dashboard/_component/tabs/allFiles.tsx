@@ -126,6 +126,17 @@ function AllFiles() {
     }
   };
 
+  const addToTrash = async (fileId: string) => {
+    try {
+      const res = await axios.patch(`/api/file/${fileId}/trash`);
+      if (res.data.success) {
+        toast.success("File moved to trash!", { position: "top-center" });
+      }
+    } catch {
+      toast.error("Something went wrong! Try later.", { position: "top-center" });
+    }
+  };
+
   const fetchFiles = async (parentId: string | null) => {
     try {
       setFetchingFiles(true);
@@ -271,7 +282,6 @@ function AllFiles() {
                     data-name={item.name}
                     onContextMenu={(e) => {
                       e.preventDefault();
-                      console.log(e.currentTarget.dataset.id);
                       setCurrentHighlightedFile(e.currentTarget.dataset.id as string);
                       setSelectedFileForAction({
                         id: e.currentTarget.dataset.id as string,
@@ -333,9 +343,13 @@ function AllFiles() {
                         Add to Fav
                       </DropdownMenuItem>
                     )}
-                    <DropdownMenuItem>
+                    <DropdownMenuItem
+                      onClick={() => {
+                        //make a seperate function and remove the file from state also
+                        addToTrash(selectedFileForAction?.id as string);
+                      }}
+                    >
                       Move to Trash
-                      <DropdownMenuShortcut>⌘T</DropdownMenuShortcut>
                     </DropdownMenuItem>
                   </DropdownMenuGroup>
                   <DropdownMenuSeparator />

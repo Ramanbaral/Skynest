@@ -12,82 +12,35 @@ import {
 import { Separator } from "@/components/ui/separator";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { ArrowUpFromLine, Trash2, X } from "lucide-react";
+import { File } from "@/db/schema";
+import { useEffect, useState } from "react";
+import axios from "axios";
+import { toast } from "sonner";
+import convertBytesToMb from "@/helpers/convertBytesToMb";
+import Loader from "../loader";
 
 function Trash() {
-  const invoices = [
-    {
-      invoice: "INV001",
-      paymentStatus: "Paid",
-      totalAmount: "$250.00",
-      paymentMethod: "Credit Card",
-    },
-    {
-      invoice: "INV002",
-      paymentStatus: "Pending",
-      totalAmount: "$150.00",
-      paymentMethod: "PayPal",
-    },
-    {
-      invoice: "INV003",
-      paymentStatus: "Unpaid",
-      totalAmount: "$350.00",
-      paymentMethod: "Bank Transfer",
-    },
-    {
-      invoice: "INV004",
-      paymentStatus: "Paid",
-      totalAmount: "$450.00",
-      paymentMethod: "Credit Card",
-    },
-    {
-      invoice: "INV005",
-      paymentStatus: "Paid",
-      totalAmount: "$550.00",
-      paymentMethod: "PayPal",
-    },
-    {
-      invoice: "INV006",
-      paymentStatus: "Pending",
-      totalAmount: "$200.00",
-      paymentMethod: "Bank Transfer",
-    },
-    {
-      invoice: "INV007",
-      paymentStatus: "Unpaid",
-      totalAmount: "$300.00",
-      paymentMethod: "Credit Card",
-    },
-    {
-      invoice: "INV008",
-      paymentStatus: "Unpaid",
-      totalAmount: "$300.00",
-      paymentMethod: "Credit Card",
-    },
-    {
-      invoice: "INV0013",
-      paymentStatus: "Unpaid",
-      totalAmount: "$300.00",
-      paymentMethod: "Credit Card",
-    },
-    {
-      invoice: "INV0010",
-      paymentStatus: "Unpaid",
-      totalAmount: "$300.00",
-      paymentMethod: "Credit Card",
-    },
-    {
-      invoice: "INV0011",
-      paymentStatus: "Unpaid",
-      totalAmount: "$300.00",
-      paymentMethod: "Credit Card",
-    },
-    {
-      invoice: "INV0012",
-      paymentStatus: "Unpaid",
-      totalAmount: "$300.00",
-      paymentMethod: "Credit Card",
-    },
-  ];
+  const [trashFiles, setTrashFiles] = useState<File[] | null>(null);
+  const [isFetchingFiles, setIsFetchingFile] = useState(false);
+
+  const fetchTrashFiles = async () => {
+    try {
+      setIsFetchingFile(true);
+      const fetchTrashRes = await axios.get("/api/fetch-trash");
+      if (fetchTrashRes.data.success) {
+        setTrashFiles(fetchTrashRes.data.trashFiles);
+      }
+    } catch (e) {
+      console.log(e);
+      toast.error("Something Went Wrong! Please Try later.", { position: "top-center" });
+    } finally {
+      setIsFetchingFile(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchTrashFiles();
+  }, []);
 
   return (
     <Card>
@@ -102,47 +55,60 @@ function Trash() {
         </div>
       </CardHeader>
       <Separator />
-      <CardContent className="grid gap-6">
-        <ScrollArea className="h-[58vh] w-full">
-          <Table>
-            <TableHeader>
-              <TableRow className="bg-accent text-lg font-bold">
-                <TableHead className="w-[300px] text-primary rounded-tl-xl">
-                  File Name
-                </TableHead>
-                <TableHead className="text-primary">Type</TableHead>
-                <TableHead className="text-primary">Size</TableHead>
-                <TableHead className=" text-primary text-right rounded-tr-xl">
-                  <span className="mr-20">Actions</span>
-                </TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {invoices.map((invoice) => (
-                <TableRow key={invoice.invoice}>
-                  <TableCell className="font-medium flex items-center gap-2 mr-10">
-                    <Image src="/pdf.png" width={64} height={64} alt="img" />
-                    <span className="max-w-md overflow-hidden">headshot.jpgheadshot.jpgheadshot.jpgheadshot.jpgheadshot.jpgheadshot.jpgheadshot.jpgheadshot.jpgheadshot.jpgheadshot.jpgheadshot.jpg</span>
-                  </TableCell>
-                  <TableCell>Image/Png</TableCell>
-                  <TableCell>2.2 MB</TableCell>
-                  <TableCell className="text-right">
-                    <div>
-                      <Button variant="outline" className="mx-2">
-                        <ArrowUpFromLine className="text-green-400" />
-                        Restore
-                      </Button>
-                      <Button variant="outline" className="mx-2">
-                        <X className="text-destructive" /> Remove
-                      </Button>
-                    </div>
-                  </TableCell>
+      {isFetchingFiles ? (
+        <Loader />
+      ) : (
+        <CardContent className="grid gap-6">
+          <ScrollArea className="h-[58vh] w-full">
+            <Table>
+              <TableHeader>
+                <TableRow className="bg-accent text-lg font-bold">
+                  <TableHead className="w-[300px] text-primary rounded-tl-xl">
+                    File Name
+                  </TableHead>
+                  <TableHead className="text-primary">Type</TableHead>
+                  <TableHead className="text-primary">Size</TableHead>
+                  <TableHead className=" text-primary text-right rounded-tr-xl">
+                    <span className="mr-20">Actions</span>
+                  </TableHead>
                 </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </ScrollArea>
-      </CardContent>
+              </TableHeader>
+              <TableBody>
+                {trashFiles?.map((file) => (
+                  <TableRow key={file.id}>
+                    <TableCell className="font-medium flex items-center gap-2 mr-10">
+                      {file.type.startsWith("image") ? (
+                        <Image
+                          src={file.thumbnailUrl || "/picture.png"}
+                          width={64}
+                          height={64}
+                          alt="img"
+                        />
+                      ) : (
+                        <Image src="/pdf.png" width={64} height={64} alt="img" />
+                      )}
+                      <span className="max-w-md overflow-hidden">{file.name}</span>
+                    </TableCell>
+                    <TableCell>{file.type}</TableCell>
+                    <TableCell>{convertBytesToMb(file.size)} MB</TableCell>
+                    <TableCell className="text-right">
+                      <div>
+                        <Button variant="outline" className="mx-2">
+                          <ArrowUpFromLine className="text-green-400" />
+                          Restore
+                        </Button>
+                        <Button variant="outline" className="mx-2">
+                          <X className="text-destructive" /> Remove
+                        </Button>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </ScrollArea>
+        </CardContent>
+      )}
     </Card>
   );
 }

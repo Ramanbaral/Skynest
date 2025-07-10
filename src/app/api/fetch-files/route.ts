@@ -25,13 +25,25 @@ export async function GET(req: NextRequest) {
       allUserFiles = await db
         .select()
         .from(filesTable)
-        .where(and(isNull(filesTable.parentId), eq(filesTable.userId, userId)))
+        .where(
+          and(
+            isNull(filesTable.parentId),
+            eq(filesTable.userId, userId),
+            eq(filesTable.isTrash, false),
+          ),
+        )
         .orderBy(desc(filesTable.createdAt));
     } else {
       allUserFiles = await db
         .select()
         .from(filesTable)
-        .where(and(eq(filesTable.parentId, parentId), eq(filesTable.userId, userId)))
+        .where(
+          and(
+            eq(filesTable.parentId, parentId),
+            eq(filesTable.userId, userId),
+            eq(filesTable.isTrash, false),
+          ),
+        )
         .orderBy(desc(filesTable.createdAt));
     }
 
@@ -44,6 +56,7 @@ export async function GET(req: NextRequest) {
       { status: 200 },
     );
   } catch (e) {
+    console.log(e);
     return NextResponse.json(
       {
         success: false,

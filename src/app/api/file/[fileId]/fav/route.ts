@@ -14,7 +14,7 @@ export async function PATCH(
       return NextResponse.json(
         {
           success: false,
-          message: "file id is required.",
+          message: "File id is required.",
         },
         { status: 400 },
       );

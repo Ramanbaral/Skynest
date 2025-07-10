@@ -1,10 +1,10 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 import { auth } from "@clerk/nextjs/server";
 import { db } from "@/db";
 import { filesTable } from "@/db/schema";
 import { and, eq } from "drizzle-orm";
 
-export async function GET(req: NextRequest) {
+export async function GET() {
   try {
     const { userId } = await auth();
     if (!userId) {
@@ -20,7 +20,13 @@ export async function GET(req: NextRequest) {
     const allFavFiles = await db
       .select()
       .from(filesTable)
-      .where(and(eq(filesTable.userId, userId), eq(filesTable.isStarred, true)));
+      .where(
+        and(
+          eq(filesTable.userId, userId),
+          eq(filesTable.isStarred, true),
+          eq(filesTable.isTrash, false),
+        ),
+      );
 
     return NextResponse.json(
       {
