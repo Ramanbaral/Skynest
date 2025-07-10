@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { auth } from "@clerk/nextjs/server";
 import { db } from "@/db";
 import { filesTable } from "@/db/schema";
-import { and, eq } from "drizzle-orm";
+import { and, eq, desc } from "drizzle-orm";
 
 export async function GET() {
   try {
@@ -20,7 +20,8 @@ export async function GET() {
     const allTrashFiles = await db
       .select()
       .from(filesTable)
-      .where(and(eq(filesTable.userId, userId), eq(filesTable.isTrash, true)));
+      .where(and(eq(filesTable.userId, userId), eq(filesTable.isTrash, true)))
+      .orderBy(desc(filesTable.updatedAt));
 
     return NextResponse.json(
       {

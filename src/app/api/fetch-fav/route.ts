@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { auth } from "@clerk/nextjs/server";
 import { db } from "@/db";
 import { filesTable } from "@/db/schema";
-import { and, eq } from "drizzle-orm";
+import { and, eq, desc } from "drizzle-orm";
 
 export async function GET() {
   try {
@@ -26,7 +26,8 @@ export async function GET() {
           eq(filesTable.isStarred, true),
           eq(filesTable.isTrash, false),
         ),
-      );
+      )
+      .orderBy(desc(filesTable.updatedAt));
 
     return NextResponse.json(
       {

@@ -19,7 +19,7 @@ import {
 import { Separator } from "@/components/ui/separator";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Button } from "@/components/ui/button";
-import { DownloadCloud, StarOff, Trash2 } from "lucide-react";
+import { DownloadCloud, StarOff, Trash2, FileIcon } from "lucide-react";
 import Loader from "../loader";
 import { File } from "@/db/schema";
 import convertBytesToMb from "@/helpers/convertBytesToMb";
@@ -37,6 +37,20 @@ function FavFiles() {
       const res = await axios.patch(`/api/file/${fileId}/trash`);
       if (res.data.success) {
         toast.success("File moved to trash!", { position: "top-center" });
+        setFavFiles((prevState) => {
+          const newState = prevState.filter((file) => file.id !== fileId);
+          return newState;
+        });
+      }
+    } catch {
+      toast.error("Something went wrong! Try later.", { position: "top-center" });
+    }
+  };
+
+  const removeFromFav = async (fileId: string) => {
+    try {
+      const res = await axios.patch(`/api/file/${fileId}/unfav`);
+      if (res.data.success) {
         setFavFiles((prevState) => {
           const newState = prevState.filter((file) => file.id !== fileId);
           return newState;
@@ -70,6 +84,14 @@ function FavFiles() {
     <Card>
       {fetchingFiles === true ? (
         <Loader />
+      ) : favFiles.length === 0 ? (
+        <div className="flex flex-col gap-2 items-center justify-center">
+          <FileIcon size={64} className="text-primary" />
+          <p className="font-semibold">No Favourites Files</p>
+          <p className="text-sm">
+            Right click on your favourite file and select Add to fav
+          </p>
+        </div>
       ) : (
         <>
           <CardHeader>
@@ -95,7 +117,7 @@ function FavFiles() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {favFiles?.map((file) => {
+                  {favFiles.map((file) => {
                     const fileType = parseFileType(file.type);
                     return (
                       <TableRow key={file.id}>
@@ -124,7 +146,13 @@ function FavFiles() {
                               <DownloadCloud className="text-green-400" />
                               Download
                             </Button>
-                            <Button variant="outline" className="mx-2">
+                            <Button
+                              variant="outline"
+                              className="mx-2"
+                              onClick={() => {
+                                removeFromFav(file.id);
+                              }}
+                            >
                               <StarOff className="text-yellow-400" /> Unfav
                             </Button>
                             <Button

@@ -35,6 +35,18 @@ function Trash() {
   const [trashFiles, setTrashFiles] = useState<File[]>([]);
   const [isFetchingFiles, setIsFetchingFile] = useState(false);
 
+  const restoreFile = async (fileId: string) => {
+    try {
+      const res = await axios.patch(`/api/file/${fileId}/restore`);
+      if (res.data.success) {
+        setTrashFiles((prevState) => prevState.filter((file) => file.id !== fileId));
+        toast.success("File Restored !", { position: "top-center" });
+      }
+    } catch {
+      toast.error("Something Went Wrong! Please Try later.", { position: "top-center" });
+    }
+  };
+
   const fetchTrashFiles = async () => {
     try {
       setIsFetchingFile(true);
@@ -69,6 +81,12 @@ function Trash() {
       <Separator />
       {isFetchingFiles ? (
         <Loader />
+      ) : trashFiles.length === 0 ? (
+        <div className="flex flex-col gap-2 items-center justify-center">
+          <Trash2 size={64} className="text-destructive" />
+          <p className="font-semibold">Trash Empty !</p>
+          <p className="text-sm">Right click on the file and select Move to Trash</p>
+        </div>
       ) : (
         <CardContent className="grid gap-6">
           <ScrollArea className="h-[58vh] w-full">
@@ -115,7 +133,13 @@ function Trash() {
                       <TableCell>{convertBytesToMb(file.size)} MB</TableCell>
                       <TableCell className="text-right">
                         <div>
-                          <Button variant="outline" className="mx-2">
+                          <Button
+                            variant="outline"
+                            className="mx-2"
+                            onClick={() => {
+                              restoreFile(file.id);
+                            }}
+                          >
                             <ArrowUpFromLine className="text-green-400" />
                             Restore
                           </Button>
