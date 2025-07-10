@@ -128,8 +128,10 @@ function AllFiles() {
     try {
       const res = await axios.patch(`/api/file/${fileId}/trash`);
       if (res.data.success) {
-        //remove the file from state also
-        toast.success("File moved to trash!", { position: "top-center" });
+        toast.success("Moved to trash!", { position: "top-center" });
+
+        const newFileAndFolders = filesAndFolders.filter((item) => item.id !== fileId);
+        setFilesAndFolders(newFileAndFolders);
       }
     } catch {
       toast.error("Something went wrong! Try later.", { position: "top-center" });

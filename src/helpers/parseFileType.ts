@@ -4,6 +4,8 @@ export default function parseFileType(fileType: string): string {
     type = "Image";
   } else if (fileType.endsWith("pdf")) {
     type = "PDF";
+  } else if (fileType === "folder") {
+    type = "Folder";
   }
   return type;
 }

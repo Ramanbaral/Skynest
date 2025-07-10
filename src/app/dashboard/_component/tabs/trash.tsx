@@ -21,7 +21,7 @@ import parseFileType from "@/helpers/parseFileType";
 import Loader from "../loader";
 
 function Trash() {
-  const [trashFiles, setTrashFiles] = useState<File[] | null>(null);
+  const [trashFiles, setTrashFiles] = useState<File[]>([]);
   const [isFetchingFiles, setIsFetchingFile] = useState(false);
 
   const fetchTrashFiles = async () => {
@@ -40,7 +40,7 @@ function Trash() {
   };
 
   useEffect(() => {
-    if (trashFiles === null) fetchTrashFiles();
+    if (trashFiles.length === 0) fetchTrashFiles();
   }, []);
 
   return (
@@ -77,6 +77,7 @@ function Trash() {
               <TableBody>
                 {trashFiles?.map((file) => {
                   const fileType = parseFileType(file.type);
+                  console.log(file.type);
 
                   return (
                     <TableRow key={file.id}>
@@ -91,6 +92,9 @@ function Trash() {
                         )}
                         {fileType === "PDF" && (
                           <Image src="/pdf.png" width={64} height={64} alt="img" />
+                        )}
+                        {fileType === "Folder" && (
+                          <Image src="/folder.png" width={64} height={64} alt="img" />
                         )}
                         {fileType === "Unknown" && (
                           <Image src="/file.png" width={64} height={64} alt="img" />

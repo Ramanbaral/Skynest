@@ -29,8 +29,23 @@ import { toast } from "sonner";
 import parseFileType from "@/helpers/parseFileType";
 
 function FavFiles() {
-  const [favFiles, setFavFiles] = useState<File[] | null>(null);
+  const [favFiles, setFavFiles] = useState<File[]>([]);
   const [fetchingFiles, setFetchingFiles] = useState(false);
+
+  const addToTrash = async (fileId: string) => {
+    try {
+      const res = await axios.patch(`/api/file/${fileId}/trash`);
+      if (res.data.success) {
+        toast.success("File moved to trash!", { position: "top-center" });
+        setFavFiles((prevState) => {
+          const newState = prevState.filter((file) => file.id !== fileId);
+          return newState;
+        });
+      }
+    } catch {
+      toast.error("Something went wrong! Try later.", { position: "top-center" });
+    }
+  };
 
   const fetchFavFiles = async () => {
     try {
@@ -48,7 +63,7 @@ function FavFiles() {
   };
 
   useEffect(() => {
-    if (favFiles === null) fetchFavFiles();
+    if (favFiles.length === 0) fetchFavFiles();
   }, []);
 
   return (
@@ -112,7 +127,13 @@ function FavFiles() {
                             <Button variant="outline" className="mx-2">
                               <StarOff className="text-yellow-400" /> Unfav
                             </Button>
-                            <Button variant="outline" className="mx-2">
+                            <Button
+                              variant="outline"
+                              className="mx-2"
+                              onClick={() => {
+                                addToTrash(file.id);
+                              }}
+                            >
                               <Trash2 className="text-destructive" /> Trash
                             </Button>
                           </div>
