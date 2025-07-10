@@ -10,6 +10,7 @@ export const filesTable = pgTable("files", {
   fileUrl: varchar("file_url").notNull(),
   thumbnailUrl: varchar("thumbnail_url"),
   userId: varchar("user_id").notNull(),
+  fileId: varchar("file_id"),
   parentId: uuid("parent_id"),
   isFolder: boolean("is_folder").default(false).notNull(),
   isStarred: boolean("is_starred").default(false).notNull(),

@@ -47,6 +47,18 @@ function Trash() {
     }
   };
 
+  const deleteFile = async (fileId: string) => {
+    try {
+      const res = await axios.delete(`/api/file/${fileId}/delete`);
+      if (res.data.success) {
+        setTrashFiles((prevState) => prevState.filter((file) => file.id !== fileId));
+        toast.success("File Deleted !", { position: "top-center" });
+      }
+    } catch {
+      toast.error("Something Went Wrong! Please Try later.", { position: "top-center" });
+    }
+  };
+
   const fetchTrashFiles = async () => {
     try {
       setIsFetchingFile(true);
@@ -162,7 +174,12 @@ function Trash() {
                               </AlertDialogHeader>
                               <AlertDialogFooter>
                                 <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                <AlertDialogAction className="cursor-pointer bg-destructive hover:bg-destructive">
+                                <AlertDialogAction
+                                  className="cursor-pointer bg-destructive hover:bg-destructive"
+                                  onClick={() => {
+                                    deleteFile(file.id);
+                                  }}
+                                >
                                   Yes, Delete
                                 </AlertDialogAction>
                               </AlertDialogFooter>

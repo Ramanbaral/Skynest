@@ -127,6 +127,7 @@ export async function POST(req: NextRequest) {
       path: uploadResponse.data.filePath as string,
       size: file.size,
       type: file.type,
+      fileId: uploadResponse.data.fileId,
       parentId: parentId,
       fileUrl: uploadResponse.data.url as string,
       thumbnailUrl: uploadResponse.data.thumbnailUrl || null,
