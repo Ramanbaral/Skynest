@@ -120,9 +120,9 @@ function Trash() {
             <TableBody>
               {invoices.map((invoice) => (
                 <TableRow key={invoice.invoice}>
-                  <TableCell className="font-medium flex items-center gap-2">
+                  <TableCell className="font-medium flex items-center gap-2 mr-10">
                     <Image src="/pdf.png" width={64} height={64} alt="img" />
-                    headshot.jpg
+                    <span className="max-w-md overflow-hidden">headshot.jpgheadshot.jpgheadshot.jpgheadshot.jpgheadshot.jpgheadshot.jpgheadshot.jpgheadshot.jpgheadshot.jpgheadshot.jpgheadshot.jpg</span>
                   </TableCell>
                   <TableCell>Image/Png</TableCell>
                   <TableCell>2.2 MB</TableCell>

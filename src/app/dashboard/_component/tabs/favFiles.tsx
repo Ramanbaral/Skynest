@@ -79,9 +79,18 @@ function FavFiles() {
               {allFavFiles?.map((item) => {
                 return (
                   <TableRow key={item.id}>
-                    <TableCell className="font-medium flex items-center gap-2">
-                      <Image src="/pdf.png" width={64} height={64} alt="img" />
-                      {item.name}
+                    <TableCell className="font-medium flex items-center gap-5 mr-5">
+                      {item.type.startsWith("image") ? (
+                        <Image
+                          src={item.thumbnailUrl || "/picture.png"}
+                          width={64}
+                          height={64}
+                          alt="img"
+                        />
+                      ) : (
+                        <Image src="/pdf.png" width={64} height={64} alt="img" />
+                      )}
+                      <span className="max-w-md overflow-hidden">{item.name}</span>
                     </TableCell>
                     <TableCell>{item.type}</TableCell>
                     <TableCell>{convertBytesToMb(item.size)} MB</TableCell>
