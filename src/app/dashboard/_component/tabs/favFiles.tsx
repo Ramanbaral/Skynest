@@ -26,6 +26,7 @@ import convertBytesToMb from "@/helpers/convertBytesToMb";
 import { useState, useEffect } from "react";
 import axios from "axios";
 import { toast } from "sonner";
+import parseFileType from "@/helpers/parseFileType";
 
 function FavFiles() {
   const [favFiles, setFavFiles] = useState<File[] | null>(null);
@@ -47,7 +48,7 @@ function FavFiles() {
   };
 
   useEffect(() => {
-    fetchFavFiles();
+    if (favFiles === null) fetchFavFiles();
   }, []);
 
   return (
@@ -79,24 +80,29 @@ function FavFiles() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {favFiles?.map((item) => {
+                  {favFiles?.map((file) => {
+                    const fileType = parseFileType(file.type);
                     return (
-                      <TableRow key={item.id}>
+                      <TableRow key={file.id}>
                         <TableCell className="font-medium flex items-center gap-5 mr-5">
-                          {item.type.startsWith("image") ? (
+                          {fileType === "Image" && (
                             <Image
-                              src={item.thumbnailUrl || "/picture.png"}
+                              src={file.thumbnailUrl || "/picture.png"}
                               width={64}
                               height={64}
                               alt="img"
                             />
-                          ) : (
+                          )}
+                          {fileType === "PDF" && (
                             <Image src="/pdf.png" width={64} height={64} alt="img" />
                           )}
-                          <span className="max-w-md overflow-hidden">{item.name}</span>
+                          {fileType === "Unknown" && (
+                            <Image src="/file.png" width={64} height={64} alt="img" />
+                          )}
+                          <span className="max-w-md overflow-hidden">{file.name}</span>
                         </TableCell>
-                        <TableCell>{item.type}</TableCell>
-                        <TableCell>{convertBytesToMb(item.size)} MB</TableCell>
+                        <TableCell>{fileType}</TableCell>
+                        <TableCell>{convertBytesToMb(file.size)} MB</TableCell>
                         <TableCell className="text-right">
                           <div>
                             <Button variant="outline" className="mx-2">

@@ -17,6 +17,7 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import { toast } from "sonner";
 import convertBytesToMb from "@/helpers/convertBytesToMb";
+import parseFileType from "@/helpers/parseFileType";
 import Loader from "../loader";
 
 function Trash() {
@@ -39,7 +40,7 @@ function Trash() {
   };
 
   useEffect(() => {
-    fetchTrashFiles();
+    if (trashFiles === null) fetchTrashFiles();
   }, []);
 
   return (
@@ -74,36 +75,44 @@ function Trash() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {trashFiles?.map((file) => (
-                  <TableRow key={file.id}>
-                    <TableCell className="font-medium flex items-center gap-2 mr-10">
-                      {file.type.startsWith("image") ? (
-                        <Image
-                          src={file.thumbnailUrl || "/picture.png"}
-                          width={64}
-                          height={64}
-                          alt="img"
-                        />
-                      ) : (
-                        <Image src="/pdf.png" width={64} height={64} alt="img" />
-                      )}
-                      <span className="max-w-md overflow-hidden">{file.name}</span>
-                    </TableCell>
-                    <TableCell>{file.type}</TableCell>
-                    <TableCell>{convertBytesToMb(file.size)} MB</TableCell>
-                    <TableCell className="text-right">
-                      <div>
-                        <Button variant="outline" className="mx-2">
-                          <ArrowUpFromLine className="text-green-400" />
-                          Restore
-                        </Button>
-                        <Button variant="outline" className="mx-2">
-                          <X className="text-destructive" /> Remove
-                        </Button>
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                ))}
+                {trashFiles?.map((file) => {
+                  const fileType = parseFileType(file.type);
+
+                  return (
+                    <TableRow key={file.id}>
+                      <TableCell className="font-medium flex items-center gap-2 mr-10">
+                        {fileType === "Image" && (
+                          <Image
+                            src={file.thumbnailUrl || "/picture.png"}
+                            width={64}
+                            height={64}
+                            alt="img"
+                          />
+                        )}
+                        {fileType === "PDF" && (
+                          <Image src="/pdf.png" width={64} height={64} alt="img" />
+                        )}
+                        {fileType === "Unknown" && (
+                          <Image src="/file.png" width={64} height={64} alt="img" />
+                        )}
+                        <span className="max-w-md overflow-hidden">{file.name}</span>
+                      </TableCell>
+                      <TableCell>{fileType}</TableCell>
+                      <TableCell>{convertBytesToMb(file.size)} MB</TableCell>
+                      <TableCell className="text-right">
+                        <div>
+                          <Button variant="outline" className="mx-2">
+                            <ArrowUpFromLine className="text-green-400" />
+                            Restore
+                          </Button>
+                          <Button variant="outline" className="mx-2">
+                            <X className="text-destructive" /> Remove
+                          </Button>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  );
+                })}
               </TableBody>
             </Table>
           </ScrollArea>

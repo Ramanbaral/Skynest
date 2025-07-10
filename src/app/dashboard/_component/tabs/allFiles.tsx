@@ -22,8 +22,6 @@ import {
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
-  DropdownMenuShortcut,
-  // DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import Image from "next/image";
 import { toast } from "sonner";
@@ -130,6 +128,7 @@ function AllFiles() {
     try {
       const res = await axios.patch(`/api/file/${fileId}/trash`);
       if (res.data.success) {
+        //remove the file from state also
         toast.success("File moved to trash!", { position: "top-center" });
       }
     } catch {
@@ -345,7 +344,6 @@ function AllFiles() {
                     )}
                     <DropdownMenuItem
                       onClick={() => {
-                        //make a seperate function and remove the file from state also
                         addToTrash(selectedFileForAction?.id as string);
                       }}
                     >
