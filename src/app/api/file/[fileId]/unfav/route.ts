@@ -9,7 +9,7 @@ export async function PATCH(
   { params }: { params: { fileId: string } },
 ) {
   try {
-    const { fileId } = params;
+    const { fileId } = await params;
     if (!fileId) {
       return NextResponse.json(
         {
@@ -46,8 +46,8 @@ export async function PATCH(
       );
     }
 
-    //toogle star status
-    const starValue = !file.isStarred;
+    //set star status to false
+    const starValue = false;
     await db
       .update(filesTable)
       .set({ isStarred: starValue })
@@ -56,7 +56,7 @@ export async function PATCH(
     return NextResponse.json(
       {
         success: true,
-        message: "File star toggled.",
+        message: "File removed from FAV.",
       },
       { status: 200 },
     );
