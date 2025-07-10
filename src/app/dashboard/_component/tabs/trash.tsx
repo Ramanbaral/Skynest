@@ -9,6 +9,17 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { Separator } from "@/components/ui/separator";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { ArrowUpFromLine, Trash2, X } from "lucide-react";
@@ -77,7 +88,6 @@ function Trash() {
               <TableBody>
                 {trashFiles?.map((file) => {
                   const fileType = parseFileType(file.type);
-                  console.log(file.type);
 
                   return (
                     <TableRow key={file.id}>
@@ -109,9 +119,31 @@ function Trash() {
                             <ArrowUpFromLine className="text-green-400" />
                             Restore
                           </Button>
-                          <Button variant="outline" className="mx-2">
-                            <X className="text-destructive" /> Remove
-                          </Button>
+
+                          <AlertDialog>
+                            <AlertDialogTrigger asChild>
+                              <Button variant="outline" className="mx-2">
+                                <X className="text-destructive" /> Remove
+                              </Button>
+                            </AlertDialogTrigger>
+                            <AlertDialogContent>
+                              <AlertDialogHeader>
+                                <AlertDialogTitle>
+                                  Are you absolutely sure?
+                                </AlertDialogTitle>
+                                <AlertDialogDescription>
+                                  This action cannot be undone. This will permanently
+                                  delete your files from our servers.
+                                </AlertDialogDescription>
+                              </AlertDialogHeader>
+                              <AlertDialogFooter>
+                                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                <AlertDialogAction className="cursor-pointer bg-destructive hover:bg-destructive">
+                                  Yes, Delete
+                                </AlertDialogAction>
+                              </AlertDialogFooter>
+                            </AlertDialogContent>
+                          </AlertDialog>
                         </div>
                       </TableCell>
                     </TableRow>
