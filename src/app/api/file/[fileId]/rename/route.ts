@@ -1,15 +1,15 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@clerk/nextjs/server";
+import { filesTable } from "@/db/schema";
 import { db } from "@/db";
 import { eq, and } from "drizzle-orm";
-import { filesTable } from "@/db/schema";
 
 export async function PATCH(
   req: NextRequest,
   { params }: { params: { fileId: string } },
 ) {
   try {
-    const { fileId } = await params;
+    const { fileId } = params;
     if (!fileId) {
       return NextResponse.json(
         {
@@ -19,6 +19,8 @@ export async function PATCH(
         { status: 400 },
       );
     }
+    const { newName } = await req.json();
+    console.log(newName);
 
     const { userId } = await auth();
     if (!userId) {
@@ -36,6 +38,7 @@ export async function PATCH(
       .select()
       .from(filesTable)
       .where(and(eq(filesTable.id, fileId), eq(filesTable.userId, userId)));
+
     if (!file) {
       return NextResponse.json(
         {
@@ -46,17 +49,12 @@ export async function PATCH(
       );
     }
 
-    //set star status to true
-    const starValue = true;
-    await db
-      .update(filesTable)
-      .set({ isStarred: starValue })
-      .where(eq(filesTable.id, fileId));
+    await db.update(filesTable).set({ name: newName }).where(eq(filesTable.id, fileId));
 
     return NextResponse.json(
       {
-        success: true,
-        message: "File added to FAV.",
+        success: "true",
+        message: "File Renamed.",
       },
       { status: 200 },
     );
