@@ -322,6 +322,7 @@ function AllFiles() {
                     data-id={item.id} // store the unique id of file
                     data-filetype={item.type}
                     data-name={item.name}
+                    data-url={item.fileUrl}
                     onContextMenu={(e) => {
                       e.preventDefault();
                       setCurrentHighlightedFile(e.currentTarget.dataset.id as string);
@@ -333,12 +334,14 @@ function AllFiles() {
                       setIsMenuOpen(!isMenuOpen);
                       setMenuPosition({ x: e.clientX, y: e.clientY });
                       setFileToRenameId(null);
+                      reset();
                     }}
                     onDoubleClick={(e) => {
                       if (e.currentTarget.dataset.filetype === "folder") {
                         addFolderToHistory(item.id, item.name);
                       }
                       setFileToRenameId(null);
+                      reset();
                     }}
                     onClick={(e) => {
                       setCurrentHighlightedFile(e.currentTarget.dataset.id as string);
@@ -357,11 +360,11 @@ function AllFiles() {
                           )}
                         >
                           <Input
-                            ref={renameInputRef}
                             defaultValue={item.name}
                             {...register("newName")}
                             type="text"
                             autoComplete="off"
+                            autoFocus
                           />
                         </form>
                       ) : (
@@ -381,6 +384,7 @@ function AllFiles() {
                   }}
                 >
                   <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                  <DropdownMenuSeparator />
                   <DropdownMenuGroup>
                     <DropdownMenuItem
                       onClick={() => {
@@ -395,13 +399,20 @@ function AllFiles() {
                       Open
                     </DropdownMenuItem>
                     {selectedFileForAction?.type !== "folder" && (
-                      <DropdownMenuItem
-                        onClick={() => {
-                          addToFav(selectedFileForAction?.id as string);
-                        }}
-                      >
-                        Add to Fav
-                      </DropdownMenuItem>
+                      <>
+                        <DropdownMenuItem
+                          onClick={() => {
+                            addToFav(selectedFileForAction?.id as string);
+                          }}
+                        >
+                          Add to Fav
+                        </DropdownMenuItem>
+                        <DropdownMenuItem>
+                          <a href={`/api/file/${selectedFileForAction?.id}/download`}>
+                            Download
+                          </a>
+                        </DropdownMenuItem>
+                      </>
                     )}
                     <DropdownMenuItem
                       onClick={() => {
@@ -411,7 +422,6 @@ function AllFiles() {
                       Move to Trash
                     </DropdownMenuItem>
                   </DropdownMenuGroup>
-                  <DropdownMenuSeparator />
                   <DropdownMenuItem
                     onClick={() => {
                       const fileId = selectedFileForAction?.id;
