@@ -9,7 +9,7 @@ export async function PATCH(
   { params }: { params: { fileId: string } },
 ) {
   try {
-    const { fileId } = params;
+    const { fileId } = await params;
     if (!fileId) {
       return NextResponse.json(
         {
@@ -20,7 +20,6 @@ export async function PATCH(
       );
     }
     const { newName } = await req.json();
-    console.log(newName);
 
     const { userId } = await auth();
     if (!userId) {
@@ -38,7 +37,6 @@ export async function PATCH(
       .select()
       .from(filesTable)
       .where(and(eq(filesTable.id, fileId), eq(filesTable.userId, userId)));
-
     if (!file) {
       return NextResponse.json(
         {

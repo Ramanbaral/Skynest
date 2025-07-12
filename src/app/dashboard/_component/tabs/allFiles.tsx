@@ -25,12 +25,14 @@ import {
 } from "@/components/ui/dropdown-menu";
 import Image from "next/image";
 import { toast } from "sonner";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import axios, { AxiosResponse } from "axios";
 import { File } from "@/db/schema";
 import { useFilesAndFoldersStore } from "@/providers/filesAndFoldersStoreProvider";
 import CreateFolder from "../createFolder";
 import Loader from "../loader";
+import { Input } from "@/components/ui/input";
+import { useForm } from "react-hook-form";
 
 function AllFiles() {
   const router = useRouter();
@@ -57,6 +59,7 @@ function AllFiles() {
   const [currentHighlightedFile, setCurrentHighlightedFile] = useState<string | null>(
     null,
   );
+  const [fileToRenameId, setFileToRenameId] = useState<string | null>(null);
 
   const { filesAndFolders, setFilesAndFolders } = useFilesAndFoldersStore(
     (state) => state,
@@ -64,6 +67,44 @@ function AllFiles() {
 
   const searchParams = useSearchParams();
   const parentId = searchParams.get("parentId");
+
+  const { register, handleSubmit, reset } = useForm();
+
+  const renameFile = async (fileId: string, newName: string) => {
+    const newNameTrimmed = newName.trim();
+    setFileToRenameId(null);
+    let oldFileName: string;
+    const newFilesAndFolders = filesAndFolders.map((file) => {
+      if (file.id === fileId) {
+        oldFileName = file.name;
+        file.name = newNameTrimmed;
+      }
+      return file;
+    });
+    setFilesAndFolders(newFilesAndFolders);
+    try {
+      if (newName.length === 0) throw new Error();
+      await axios.patch(`/api/file/${fileId}/rename`, {
+        newName: newNameTrimmed,
+      });
+    } catch {
+      toast.error("Something Went Wrong.", { position: "top-center" });
+      const newFilesAndFolders = filesAndFolders.map((file) => {
+        if (file.id === fileId) {
+          file.name = oldFileName;
+        }
+        return file;
+      });
+      setFilesAndFolders(newFilesAndFolders);
+    } finally {
+      reset();
+    }
+  };
+
+  const renameInputRef = useRef<HTMLInputElement>(null);
+  useEffect(() => {
+    renameInputRef.current?.focus();
+  }, [fileToRenameId]);
 
   const addFolderToHistory = (id: string, name: string) => {
     setFolderTraverseHistory((prevState) => {
@@ -291,11 +332,13 @@ function AllFiles() {
                       });
                       setIsMenuOpen(!isMenuOpen);
                       setMenuPosition({ x: e.clientX, y: e.clientY });
+                      setFileToRenameId(null);
                     }}
                     onDoubleClick={(e) => {
                       if (e.currentTarget.dataset.filetype === "folder") {
                         addFolderToHistory(item.id, item.name);
                       }
+                      setFileToRenameId(null);
                     }}
                     onClick={(e) => {
                       setCurrentHighlightedFile(e.currentTarget.dataset.id as string);
@@ -307,7 +350,23 @@ function AllFiles() {
                       <Image src={icon} width={64} height={64} alt="icon" />
                     )}
                     <ScrollArea className="max-w-35 h-10">
-                      <p>{item.name}</p>
+                      {fileToRenameId === item.id ? (
+                        <form
+                          onSubmit={handleSubmit((data) =>
+                            renameFile(item.id, data.newName),
+                          )}
+                        >
+                          <Input
+                            ref={renameInputRef}
+                            defaultValue={item.name}
+                            {...register("newName")}
+                            type="text"
+                            autoComplete="off"
+                          />
+                        </form>
+                      ) : (
+                        <p>{item.name}</p>
+                      )}
                     </ScrollArea>
                   </div>
                 );
@@ -353,7 +412,14 @@ function AllFiles() {
                     </DropdownMenuItem>
                   </DropdownMenuGroup>
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem>Rename</DropdownMenuItem>
+                  <DropdownMenuItem
+                    onClick={() => {
+                      const fileId = selectedFileForAction?.id;
+                      if (fileId) setFileToRenameId(fileId);
+                    }}
+                  >
+                    Rename
+                  </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
             </div>
