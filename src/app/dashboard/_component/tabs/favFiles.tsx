@@ -144,7 +144,7 @@ function FavFiles() {
                           <div>
                             <Button variant="outline" className="mx-2">
                               <DownloadCloud className="text-green-400" />
-                              Download
+                              <a href={`/api/file/${file.id}/download`}>Download</a>
                             </Button>
                             <Button
                               variant="outline"

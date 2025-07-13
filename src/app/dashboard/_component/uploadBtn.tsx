@@ -1,6 +1,6 @@
 "use client";
 import Image from "next/image";
-import { useRef, useState } from "react";
+import { useRef, useState, RefObject, useEffect } from "react";
 
 import {
   Dialog,
@@ -25,6 +25,7 @@ import axios from "axios";
 import { useAuth } from "@clerk/nextjs";
 import { useSearchParams } from "next/navigation";
 import { useFilesAndFoldersStore } from "@/providers/filesAndFoldersStoreProvider";
+import { useUploadBtnRefStore } from "@/stores/uploadBtnRefStore";
 
 function UploadButton() {
   const MaxFileSizeInBytes = 5 * 1024 * 1024; //5MB
@@ -32,6 +33,7 @@ function UploadButton() {
   const addImageInp = useRef<HTMLInputElement | null>(null);
   const addDocInp = useRef<HTMLInputElement | null>(null);
   const addFileInp = useRef<HTMLInputElement | null>(null);
+  const uploadBtnRef = useRef<HTMLButtonElement>(null);
   const dialogClose = useRef(null);
 
   const [files, setFiles] = useState<FileList | null>(null);
@@ -41,6 +43,11 @@ function UploadButton() {
   const { userId } = useAuth();
   const searchParams = useSearchParams();
   const parentId = searchParams.get("parentId");
+
+  const setUploadBtnRef = useUploadBtnRefStore((state) => state.setBtnRef);
+  useEffect(() => {
+    setUploadBtnRef(uploadBtnRef);
+  }, [uploadBtnRef]);
 
   const uploadFile = async () => {
     setIsUploading(true);
@@ -72,7 +79,12 @@ function UploadButton() {
     <Dialog>
       <form>
         <DialogTrigger asChild>
-          <Button variant="outline" size="lg" className="cursor-pointer">
+          <Button
+            ref={uploadBtnRef}
+            variant="outline"
+            size="lg"
+            className="cursor-pointer"
+          >
             <Image src={"/uplaod.png"} width={30} height={30} alt="U" />
             <span className="text-lg font-semibold text-green-500">UPLOAD</span>
           </Button>

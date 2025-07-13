@@ -29,6 +29,7 @@ import { useState, useEffect, useRef } from "react";
 import axios, { AxiosResponse } from "axios";
 import { File } from "@/db/schema";
 import { useFilesAndFoldersStore } from "@/providers/filesAndFoldersStoreProvider";
+import { useUploadBtnRefStore } from "@/stores/uploadBtnRefStore";
 import CreateFolder from "../createFolder";
 import Loader from "../loader";
 import { Input } from "@/components/ui/input";
@@ -105,6 +106,8 @@ function AllFiles() {
   useEffect(() => {
     renameInputRef.current?.focus();
   }, [fileToRenameId]);
+
+  const uploadBtnRef = useUploadBtnRefStore((state) => state.btnRef);
 
   const addFolderToHistory = (id: string, name: string) => {
     setFolderTraverseHistory((prevState) => {
@@ -299,7 +302,15 @@ function AllFiles() {
             <FileIcon size={64} className="text-primary" />
             <p className="font-semibold">No files available</p>
             <p className="text-sm">
-              Upload your first file to get started with your personal cloud storage
+              <span
+                className="text-blue-500 font-bold underline cursor-pointer"
+                onClick={() => {
+                  uploadBtnRef?.current?.click();
+                }}
+              >
+                Upload
+              </span>{" "}
+              your first file to get started with your personal cloud storage
             </p>
           </div>
         ) : (
