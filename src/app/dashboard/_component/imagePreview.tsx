@@ -2,17 +2,17 @@ import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { Dispatch, SetStateAction } from "react";
 
 interface IImagePreviewProps {
-  imageUrl: string;
+  fileUrl: string;
   open: boolean;
   onOpenChange: Dispatch<SetStateAction<boolean>>;
 }
 
-export function ImagePreview({ imageUrl, open, onOpenChange }: IImagePreviewProps) {
+export function ImagePreview({ fileUrl, open, onOpenChange }: IImagePreviewProps) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="">
-        <DialogTitle>{""}</DialogTitle>
-        {imageUrl && <img className="mt-3" src={imageUrl} alt="img" />}
+      <DialogContent className="max-w-[60vw] h-[70vh] overflow-hidden">
+        <DialogTitle className="hidden">Image Preview</DialogTitle>
+        {fileUrl && <img className="mt-3" src={fileUrl} alt="img" />}
       </DialogContent>
     </Dialog>
   );

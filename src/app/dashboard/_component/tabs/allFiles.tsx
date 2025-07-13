@@ -36,6 +36,7 @@ import { Input } from "@/components/ui/input";
 import { useForm } from "react-hook-form";
 import { ImagePreview } from "../imagePreview";
 import parseFileType from "@/helpers/parseFileType";
+import { PdfPreviewModal } from "../pdfPreview";
 
 function AllFiles() {
   const router = useRouter();
@@ -43,7 +44,9 @@ function AllFiles() {
   const [isFetchFileAndFoldersError, setIsFetchFileAndFoldersError] = useState(false);
   const [fetchingFiles, setFetchingFiles] = useState(true);
   const [imagePreviewOpen, setImagePreviewOpen] = useState(false);
+  const [pdfPreviewOpen, setPdfPreviewOpen] = useState(false);
   const [currentImagePreviewUrl, setCurrentImagePreviewUrl] = useState("");
+  const [currentPdfPreviewUrl, setCurrentPdfPreviewUrl] = useState("");
   const [isMenuOpen, setIsMenuOpen] = useState<boolean>(false);
   const [menuPosition, setMenuPosition] = useState<{ x: number; y: number }>({
     x: 0,
@@ -358,14 +361,18 @@ function AllFiles() {
                         addFolderToHistory(item.id, item.name);
                       } else if (e.currentTarget.dataset.filetype === "Image") {
                         setImagePreviewOpen(true);
+                      } else if (e.currentTarget.dataset.filetype === "PDF") {
+                        setPdfPreviewOpen(true);
                       }
                       setFileToRenameId(null);
                       reset();
                     }}
                     onClick={(e) => {
                       setCurrentHighlightedFile(e.currentTarget.dataset.id as string);
-                      if (e.currentTarget.dataset.filetype !== "Folder") {
+                      if (e.currentTarget.dataset.filetype === "Image") {
                         setCurrentImagePreviewUrl(e.currentTarget.dataset.url as string);
+                      } else if (e.currentTarget.dataset.filetype === "PDF") {
+                        setCurrentPdfPreviewUrl(e.currentTarget.dataset.url as string);
                       }
                     }}
                   >
@@ -462,7 +469,12 @@ function AllFiles() {
       <ImagePreview
         open={imagePreviewOpen}
         onOpenChange={setImagePreviewOpen}
-        imageUrl={currentImagePreviewUrl}
+        fileUrl={currentImagePreviewUrl}
+      />
+      <PdfPreviewModal
+        open={pdfPreviewOpen}
+        onOpenChange={setPdfPreviewOpen}
+        fileUrl={currentPdfPreviewUrl}
       />
     </Card>
   );
