@@ -34,12 +34,16 @@ import CreateFolder from "../createFolder";
 import Loader from "../loader";
 import { Input } from "@/components/ui/input";
 import { useForm } from "react-hook-form";
+import { ImagePreview } from "../imagePreview";
+import parseFileType from "@/helpers/parseFileType";
 
 function AllFiles() {
   const router = useRouter();
 
   const [isFetchFileAndFoldersError, setIsFetchFileAndFoldersError] = useState(false);
   const [fetchingFiles, setFetchingFiles] = useState(true);
+  const [imagePreviewOpen, setImagePreviewOpen] = useState(false);
+  const [currentImagePreviewUrl, setCurrentImagePreviewUrl] = useState("");
   const [isMenuOpen, setIsMenuOpen] = useState<boolean>(false);
   const [menuPosition, setMenuPosition] = useState<{ x: number; y: number }>({
     x: 0,
@@ -318,11 +322,13 @@ function AllFiles() {
             <div className="flex flex-wrap items-center gap-10">
               {filesAndFolders?.map((item, ind) => {
                 let icon = "/file.png";
-                if (item.type === "folder") {
+                const fileType = parseFileType(item.type);
+
+                if (fileType === "Folder") {
                   icon = "/folder.png";
-                } else if (item.type.startsWith("image")) {
+                } else if (fileType === "Image") {
                   icon = "/picture.png";
-                } else if (item.type.endsWith("pdf")) {
+                } else if (fileType === "PDF") {
                   icon = "/pdf.png";
                 }
 
@@ -331,7 +337,7 @@ function AllFiles() {
                     key={ind}
                     className={`flex flex-col gap-3 items-center p-2 cursor-pointer rounded-md ${currentHighlightedFile === item.id ? "bg-accent" : ""} `}
                     data-id={item.id} // store the unique id of file
-                    data-filetype={item.type}
+                    data-filetype={fileType}
                     data-name={item.name}
                     data-url={item.fileUrl}
                     onContextMenu={(e) => {
@@ -348,14 +354,19 @@ function AllFiles() {
                       reset();
                     }}
                     onDoubleClick={(e) => {
-                      if (e.currentTarget.dataset.filetype === "folder") {
+                      if (e.currentTarget.dataset.filetype === "Folder") {
                         addFolderToHistory(item.id, item.name);
+                      } else if (e.currentTarget.dataset.filetype === "Image") {
+                        setImagePreviewOpen(true);
                       }
                       setFileToRenameId(null);
                       reset();
                     }}
                     onClick={(e) => {
                       setCurrentHighlightedFile(e.currentTarget.dataset.id as string);
+                      if (e.currentTarget.dataset.filetype !== "Folder") {
+                        setCurrentImagePreviewUrl(e.currentTarget.dataset.url as string);
+                      }
                     }}
                   >
                     {item.thumbnailUrl ? (
@@ -447,6 +458,12 @@ function AllFiles() {
           </ScrollArea>
         )}
       </CardContent>
+
+      <ImagePreview
+        open={imagePreviewOpen}
+        onOpenChange={setImagePreviewOpen}
+        imageUrl={currentImagePreviewUrl}
+      />
     </Card>
   );
 }
