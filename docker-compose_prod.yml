@@ -1,0 +1,42 @@
+version: "3.9"
+services:
+  skynest_app:
+    image: 11ramanbaral11/skynest_next_app:linux
+    ports:
+      - 3000:3000
+    volumes:
+      - ../:/app
+    env_file:
+      - path: ./.env
+        required: true
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - skynest-network
+  db:
+    image: postgres:alpine
+    container_name: skynestDB
+    ports:
+      - 5432:5432
+    environment:
+      - POSTGRES_USER=${DATABASE_USER}
+      - POSTGRES_PASSWORD=${DATABASE_PWD}
+      - POSTGRES_DB=skynest
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    restart: always
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -d $${POSTGRES_DB} -U $${POSTGRES_USER}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - skynest-network
+
+volumes:
+  postgres-data:
+
+networks:
+  skynest-network:
+    driver: bridge

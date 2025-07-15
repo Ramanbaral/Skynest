@@ -417,7 +417,7 @@ function AllFiles() {
                   <DropdownMenuGroup>
                     <DropdownMenuItem
                       onClick={() => {
-                        if (selectedFileForAction?.type === "folder") {
+                        if (selectedFileForAction?.type === "Folder") {
                           addFolderToHistory(
                             selectedFileForAction.id,
                             selectedFileForAction.name,
@@ -427,7 +427,7 @@ function AllFiles() {
                     >
                       Open
                     </DropdownMenuItem>
-                    {selectedFileForAction?.type !== "folder" && (
+                    {selectedFileForAction?.type !== "Folder" && (
                       <>
                         <DropdownMenuItem
                           onClick={() => {
