@@ -1,6 +1,6 @@
 "use client";
 import Image from "next/image";
-import { useRef, useState, RefObject, useEffect } from "react";
+import { useRef, useState, useEffect } from "react";
 
 import {
   Dialog,
@@ -34,7 +34,7 @@ function UploadButton() {
   const addDocInp = useRef<HTMLInputElement | null>(null);
   const addFileInp = useRef<HTMLInputElement | null>(null);
   const uploadBtnRef = useRef<HTMLButtonElement>(null);
-  const dialogClose = useRef(null);
+  const dialogClose = useRef<HTMLButtonElement>(null);
 
   const [files, setFiles] = useState<FileList | null>(null);
   const [isUploading, setIsUploading] = useState(false);
@@ -104,7 +104,8 @@ function UploadButton() {
               accept="image/*"
               className="absolute right-[9999px]"
               onChange={(e) => {
-                if (e.target.files?.item(0)?.size > MaxFileSizeInBytes) {
+                const img = e.target.files?.item(0);
+                if (img && img?.size > MaxFileSizeInBytes) {
                   toast.error("File Size should be less than 5 MB.");
                 } else {
                   setFiles(e.target.files);
@@ -125,7 +126,8 @@ function UploadButton() {
               className="absolute right-[9999px]"
               onChange={(e) => {
                 console.log(e.target.files);
-                if (e.target.files?.item(0)?.size > MaxFileSizeInBytes) {
+                const doc = e.target.files?.item(0);
+                if (doc && doc?.size > MaxFileSizeInBytes) {
                   toast.error("File Size should be less than 5 MB.");
                 } else {
                   setFiles(e.target.files);
@@ -155,17 +157,14 @@ function UploadButton() {
                     accept="image/*, .pdf, .doc, .docx"
                     className="absolute right-[9999px]"
                     onChange={(e) => {
-                      console.log(e.target.files);
-                      const files = e.target.files;
+                      const file = e.target.files?.item(0);
 
-                      for (const file of files) {
-                        console.log(file?.size);
-                        if (file?.size > MaxFileSizeInBytes) {
-                          toast.error("File Size should be less than 5 MB.");
-                        }
+                      if (file && file?.size > MaxFileSizeInBytes) {
+                        toast.error("File Size should be less than 5 MB.");
+                      } else {
+                        setFiles(e.target.files);
                       }
                     }}
-                    multiple
                   />
                   <a
                     className="text-blue-500 cursor-pointer"
@@ -190,12 +189,12 @@ function UploadButton() {
                     )}
                     <div>
                       <p className=" overflow-hidden font-semibold">
-                        {files.item(0)?.name.length < 30
+                        {(files.item(0)?.name.length ?? 0 < 30)
                           ? files.item(0)?.name
                           : files.item(0)?.name.substring(0, 30) + "..."}
                       </p>
                       <p className="text-sm">
-                        {(files.item(0)?.size / (1024 * 1024)).toFixed(2)} MB
+                        {(files.item(0)?.size ?? 1 / (1024 * 1024)).toFixed(2)} MB
                       </p>
                     </div>
                   </div>
