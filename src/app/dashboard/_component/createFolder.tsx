@@ -42,7 +42,7 @@ export default function CreateFolder() {
     register,
     handleSubmit,
     reset,
-    formState: { errors, isValid },
+    formState: { isValid },
   } = useForm<formData>({
     resolver: zodResolver(formSchema),
   });

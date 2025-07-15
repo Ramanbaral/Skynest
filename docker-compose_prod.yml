@@ -1,6 +1,6 @@
 version: "3.9"
 services:
-  skynest_app:
+  app:
     image: 11ramanbaral11/skynest_next_app:linux
     ports:
       - 3000:3000
@@ -9,6 +9,12 @@ services:
     env_file:
       - path: ./.env
         required: true
+    environment:
+      NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: ${NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY}
+      CLERK_SECRET_KEY: ${CLERK_SECRET_KEY}
+      IMAGEKIT_PUBLIC_KEY: ${IMAGEKIT_PUBLIC_KEY}
+      IMAGEKIT_PRIVATE_KEY: ${IMAGEKIT_PRIVATE_KEY}
+      DATABASE_URL: ${DATABASE_URL}
     depends_on:
       db:
         condition: service_healthy

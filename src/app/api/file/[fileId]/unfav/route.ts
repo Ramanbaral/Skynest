@@ -6,7 +6,7 @@ import { filesTable } from "@/db/schema";
 
 export async function PATCH(
   req: NextRequest,
-  { params }: { params: { fileId: string } },
+  { params }: { params: Promise<{ fileId: string }> },
 ) {
   try {
     const { fileId } = await params;

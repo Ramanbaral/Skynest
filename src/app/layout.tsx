@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 
+import "dotenv/config";
 import { ClerkProvider } from "@clerk/nextjs";
 import { Toaster } from "sonner";
 import { FilesAndFoldersStoreProvider } from "@/providers/filesAndFoldersStoreProvider";
@@ -31,7 +32,9 @@ export default function RootLayout({
     <html lang="en">
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
         <Toaster richColors />
-        <ClerkProvider>
+        <ClerkProvider
+          publishableKey={"pk_test_bW9kZXN0LXJhdmVuLTYyLmNsZXJrLmFjY291bnRzLmRldiQ"}
+        >
           <FilesAndFoldersStoreProvider>{children}</FilesAndFoldersStoreProvider>
         </ClerkProvider>
       </body>

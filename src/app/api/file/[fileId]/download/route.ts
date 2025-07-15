@@ -4,7 +4,10 @@ import { db } from "@/db";
 import { filesTable } from "@/db/schema";
 import { eq, and } from "drizzle-orm";
 
-export async function GET(req: NextRequest, { params }: { params: { fileId: string } }) {
+export async function GET(
+  req: NextRequest,
+  { params }: { params: Promise<{ fileId: string }> },
+) {
   try {
     const { fileId } = await params;
     if (!fileId) {

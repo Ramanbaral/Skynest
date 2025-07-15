@@ -1,6 +1,5 @@
-version: "3.9"
 services:
-  skynest_app:
+  app:
     build:
       context: .
       dockerfile: Dockerfile

@@ -4,6 +4,7 @@ import Explorer from "./_component/explorer";
 import UserProfile from "./_component/userprofile";
 import UploadButton from "./_component/uploadBtn";
 import StorageInfo from "./_component/StorageInfo";
+import { Suspense } from "react";
 
 export default async function Dashboard() {
   return (
@@ -15,7 +16,9 @@ export default async function Dashboard() {
         </div>
 
         <div>
-          <UploadButton />
+          <Suspense>
+            <UploadButton />
+          </Suspense>
         </div>
 
         <div>

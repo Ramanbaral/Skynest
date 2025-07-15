@@ -1,5 +1,4 @@
 import type { NextConfig } from "next";
-import path from "node:path";
 
 const nextConfig: NextConfig = {
   output: "standalone",
@@ -10,12 +9,6 @@ const nextConfig: NextConfig = {
         hostname: "**.imagekit.io",
       },
     ],
-  },
-  webpack: (config, { isServer }) => {
-    if (!isServer) {
-      config.resolve.alias["@"] = path.resolve(__dirname);
-    }
-    return config;
   },
 };
 

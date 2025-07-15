@@ -189,12 +189,12 @@ function UploadButton() {
                     )}
                     <div>
                       <p className=" overflow-hidden font-semibold">
-                        {(files.item(0)?.name.length ?? 0 < 30)
+                        {(files.item(0)?.name.length ?? 0) < 30
                           ? files.item(0)?.name
                           : files.item(0)?.name.substring(0, 30) + "..."}
                       </p>
                       <p className="text-sm">
-                        {(files.item(0)?.size ?? 1 / (1024 * 1024)).toFixed(2)} MB
+                        {((files.item(0)?.size ?? 1) / (1024 * 1024)).toFixed(2)} MB
                       </p>
                     </div>
                   </div>

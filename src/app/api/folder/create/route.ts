@@ -86,6 +86,7 @@ export async function POST(request: NextRequest) {
       { status: 200 },
     );
   } catch (e) {
+    console.log(e);
     return NextResponse.json(
       {
         success: "false",

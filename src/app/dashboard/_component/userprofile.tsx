@@ -13,7 +13,6 @@ import { ChevronDown } from "lucide-react";
 
 export default async function UserProfile() {
   const user = await currentUser();
-  // console.log(user);
 
   return (
     <DropdownMenu>
