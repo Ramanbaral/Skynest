@@ -1,5 +1,13 @@
 import { relations } from "drizzle-orm";
-import { pgTable, integer, varchar, boolean, uuid, timestamp } from "drizzle-orm/pg-core";
+import {
+  pgTable,
+  integer,
+  varchar,
+  boolean,
+  uuid,
+  timestamp,
+  bigint,
+} from "drizzle-orm/pg-core";
 
 export const filesTable = pgTable("files", {
   id: uuid("id").defaultRandom().primaryKey(),
@@ -9,7 +17,7 @@ export const filesTable = pgTable("files", {
   type: varchar("type").notNull(), //"folder"
   fileUrl: varchar("file_url").notNull(),
   thumbnailUrl: varchar("thumbnail_url"),
-  userId: varchar("user_id").notNull(),
+  userId: varchar("userid").unique().notNull(),
   fileId: varchar("file_id"),
   parentId: uuid("parent_id"),
   isFolder: boolean("is_folder").default(false).notNull(),
@@ -27,5 +35,27 @@ export const filesRelations = relations(filesTable, ({ one, many }) => ({
   children: many(filesTable),
 }));
 
+export const userRelations = relations(filesTable, ({ one }) => ({
+  UserStorageInfo: one(UserStorageInfo),
+}));
+
 export type File = typeof filesTable.$inferSelect;
 export type InsertFile = typeof filesTable.$inferInsert;
+
+export const UserStorageInfo = pgTable("storageinfo", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  userId: varchar("userid").references(() => filesTable.userId),
+  storageUsed: bigint({ mode: "number" }).default(0),
+  storageCapacity: bigint({ mode: "number" }).default(1073741824),
+  storageUsedPercentage: integer("storage_used_percentage").default(0),
+});
+
+export const storageinfoRelations = relations(UserStorageInfo, ({ one }) => ({
+  user: one(filesTable, {
+    fields: [UserStorageInfo.userId],
+    references: [filesTable.userId],
+  }),
+}));
+
+export type UserStorageInfo = typeof UserStorageInfo.$inferSelect;
+export type InsertUserStorageInfo = typeof UserStorageInfo.$inferInsert;

@@ -1,9 +1,70 @@
 {
-  "id": "66e29111-b5ea-412f-b955-4f9aeb1383b5",
+  "id": "afaf4a89-ab5c-47dc-a43a-1995135a6505",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
+    "public.storageinfo": {
+      "name": "storageinfo",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "userid": {
+          "name": "userid",
+          "type": "varchar",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "storageUsed": {
+          "name": "storageUsed",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": false,
+          "default": 0
+        },
+        "storageCapacity": {
+          "name": "storageCapacity",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": false,
+          "default": 1073741824
+        },
+        "storage_used_percentage": {
+          "name": "storage_used_percentage",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false,
+          "default": 0
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "storageinfo_userid_files_userid_fk": {
+          "name": "storageinfo_userid_files_userid_fk",
+          "tableFrom": "storageinfo",
+          "tableTo": "files",
+          "columnsFrom": [
+            "userid"
+          ],
+          "columnsTo": [
+            "userid"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
     "public.files": {
       "name": "files",
       "schema": "",
@@ -51,8 +112,8 @@
           "primaryKey": false,
           "notNull": false
         },
-        "user_id": {
-          "name": "user_id",
+        "userid": {
+          "name": "userid",
           "type": "varchar",
           "primaryKey": false,
           "notNull": true
@@ -108,7 +169,15 @@
       "indexes": {},
       "foreignKeys": {},
       "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
+      "uniqueConstraints": {
+        "files_userid_unique": {
+          "name": "files_userid_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "userid"
+          ]
+        }
+      },
       "policies": {},
       "checkConstraints": {},
       "isRLSEnabled": false
