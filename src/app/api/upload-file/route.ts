@@ -1,7 +1,7 @@
 import { auth } from "@clerk/nextjs/server";
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/db";
-import { filesTable, InsertFile } from "@/db/schema";
+import { filesTable, InsertFile, UserStorageInfo } from "@/db/schema";
 import { eq, and } from "drizzle-orm";
 import { v4 as uuidv4 } from "uuid";
 import axios from "axios";
@@ -77,6 +77,33 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    //check if the user has storage to store the current file
+    const userStorageInfo = await db
+      .select()
+      .from(UserStorageInfo)
+      .where(eq(UserStorageInfo.userId, userId));
+
+    let storageUsedByUserInBytes = 0;
+    let storageCapacityOfUserInBytes = 1;
+    if (userStorageInfo.length === 0) {
+      await db.insert(UserStorageInfo).values({ userId: userId });
+    } else {
+      storageUsedByUserInBytes = userStorageInfo[0].storageUsed as number;
+      storageCapacityOfUserInBytes = userStorageInfo[0].storageCapacity as number;
+      if (
+        (storageUsedByUserInBytes ?? 0) + file.size >
+        (storageCapacityOfUserInBytes ?? 0)
+      ) {
+        return NextResponse.json(
+          {
+            success: false,
+            message: "Your storage capacity is full.",
+          },
+          { status: 400 },
+        );
+      }
+    }
+
     //check for file size should be less than 5 MB;
     const MAX_FILE_SIZE = 5 * 1024 * 1024;
     if (file.size > MAX_FILE_SIZE) {
@@ -100,9 +127,7 @@ export async function POST(req: NextRequest) {
     //only allow the allow file extension ["jpg", "jpeg", "png", "pdf", "txt", "md"]
     const uniqueFilename = `${uuidv4()}.${fileExtension}`;
 
-    //upload the file to imagekit using their api
-    // -------------------------------------------
-
+    //upload the file to imagekit
     const data = new FormData();
     data.set("file", file);
     data.set("fileName", uniqueFilename);
@@ -135,6 +160,17 @@ export async function POST(req: NextRequest) {
     };
 
     const newFile = await db.insert(filesTable).values(fileData).returning();
+
+    //update user storage info
+    await db
+      .update(UserStorageInfo)
+      .set({
+        storageUsed: (storageUsedByUserInBytes ?? 0) + file.size,
+        storageUsedPercentage: Math.floor(
+          ((storageUsedByUserInBytes + file.size) / storageCapacityOfUserInBytes) * 100,
+        ),
+      })
+      .where(eq(UserStorageInfo.userId, userId));
 
     return NextResponse.json(
       {

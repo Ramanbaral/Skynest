@@ -1,5 +1,5 @@
 {
-  "id": "afaf4a89-ab5c-47dc-a43a-1995135a6505",
+  "id": "a7fa5bc2-2ade-4e5e-b000-dda3caa54bb3",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -11,15 +11,15 @@
         "id": {
           "name": "id",
           "type": "uuid",
-          "primaryKey": true,
-          "notNull": true,
+          "primaryKey": false,
+          "notNull": false,
           "default": "gen_random_uuid()"
         },
         "userid": {
           "name": "userid",
           "type": "varchar",
-          "primaryKey": false,
-          "notNull": false
+          "primaryKey": true,
+          "notNull": true
         },
         "storageUsed": {
           "name": "storageUsed",
@@ -44,21 +44,7 @@
         }
       },
       "indexes": {},
-      "foreignKeys": {
-        "storageinfo_userid_files_userid_fk": {
-          "name": "storageinfo_userid_files_userid_fk",
-          "tableFrom": "storageinfo",
-          "tableTo": "files",
-          "columnsFrom": [
-            "userid"
-          ],
-          "columnsTo": [
-            "userid"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        }
-      },
+      "foreignKeys": {},
       "compositePrimaryKeys": {},
       "uniqueConstraints": {},
       "policies": {},
@@ -169,15 +155,7 @@
       "indexes": {},
       "foreignKeys": {},
       "compositePrimaryKeys": {},
-      "uniqueConstraints": {
-        "files_userid_unique": {
-          "name": "files_userid_unique",
-          "nullsNotDistinct": false,
-          "columns": [
-            "userid"
-          ]
-        }
-      },
+      "uniqueConstraints": {},
       "policies": {},
       "checkConstraints": {},
       "isRLSEnabled": false

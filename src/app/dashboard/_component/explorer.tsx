@@ -6,6 +6,7 @@ import Image from "next/image";
 import FavFiles from "./tabs/favFiles";
 import AllFiles from "./tabs/allFiles";
 import Trash from "./tabs/trash";
+import { Suspense } from "react";
 
 export default function Explorer() {
   return (
@@ -28,7 +29,9 @@ export default function Explorer() {
           </TabsList>
         </div>
         <TabsContent value="allfiles">
-          <AllFiles />
+          <Suspense>
+            <AllFiles />
+          </Suspense>
         </TabsContent>
         <TabsContent value="favourite">
           <FavFiles />
