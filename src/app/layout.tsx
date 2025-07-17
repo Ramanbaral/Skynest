@@ -32,9 +32,7 @@ export default function RootLayout({
     <html lang="en">
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
         <Toaster richColors />
-        <ClerkProvider
-          publishableKey={"pk_test_bW9kZXN0LXJhdmVuLTYyLmNsZXJrLmFjY291bnRzLmRldiQ"}
-        >
+        <ClerkProvider>
           <FilesAndFoldersStoreProvider>{children}</FilesAndFoldersStoreProvider>
         </ClerkProvider>
       </body>
