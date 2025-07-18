@@ -29,7 +29,9 @@ export default function StorageInfo() {
         };
       }>(`/api/storage-info/${userId}`);
       setStorageUsedPercentage(storageInfo.data.storageInfo.storageUsedPercentage);
-      setStorageUsedInMB(convertBytesToMb(storageInfo.data.storageInfo.storageUsed));
+      setStorageUsedInMB(
+        convertBytesToMb(storageInfo.data.storageInfo.storageUsed) as string,
+      );
       setStorageCapacityInGB(
         convertBytesToGb(storageInfo.data.storageInfo.storageCapacity).toString(),
       );
