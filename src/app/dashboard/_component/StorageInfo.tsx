@@ -33,7 +33,6 @@ export default function StorageInfo() {
       setStorageCapacityInGB(
         convertBytesToGb(storageInfo.data.storageInfo.storageCapacity).toString(),
       );
-      console.log(storageInfo.data.storageInfo.storageUsed);
       setFetchingStorageInfo(false);
     } catch {
       toast.error("Something Went Wrong!");

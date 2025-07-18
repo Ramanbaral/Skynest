@@ -18,7 +18,6 @@ import {
 } from "react";
 import { useSignUp } from "@clerk/nextjs";
 import { toast } from "sonner";
-import axios from "axios";
 
 export function SignupForm({
   className,
@@ -50,7 +49,7 @@ export function SignupForm({
     setIsSubmitting(true);
 
     try {
-      const signUpResponse = await signUp.create({
+      await signUp.create({
         emailAddress: data.email,
         password: data.password,
       });
@@ -59,10 +58,6 @@ export function SignupForm({
         strategy: "email_code",
       });
       setVerifying((prev) => !prev);
-
-      //Insert info userstorageinfo table to track user storage
-      const userId = signUpResponse.id;
-      await axios.get(`/api/initialize-storageinfo/${userId}`);
     } catch (e) {
       toast.error("Problem creating new account.\n Please try later.");
       console.log("Error creating new account - ", e);

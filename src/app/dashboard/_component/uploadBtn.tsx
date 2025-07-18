@@ -21,7 +21,7 @@ import {
   UploadCloud,
 } from "lucide-react";
 import { toast } from "sonner";
-import axios from "axios";
+import axios, { AxiosError } from "axios";
 import { useAuth } from "@clerk/nextjs";
 import { useSearchParams } from "next/navigation";
 import { useFilesAndFoldersStore } from "@/providers/filesAndFoldersStoreProvider";
@@ -68,8 +68,9 @@ function UploadButton() {
         toast.error(uploadReq.data.message);
       }
       setFiles(null);
-    } catch {
-      toast.error("Problem Uplaoding File.", { position: "top-center" });
+    } catch (e) {
+      if (e instanceof AxiosError)
+        toast.error(e.response?.data.message, { position: "top-center" });
     } finally {
       setIsUploading(false);
     }

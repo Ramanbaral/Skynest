@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@clerk/nextjs/server";
 import { db } from "@/db";
-import { filesTable } from "@/db/schema";
+import { filesTable, UserStorageInfo } from "@/db/schema";
 import { eq, and } from "drizzle-orm";
 import axios from "axios";
 
@@ -10,15 +10,38 @@ const imageKitAuth = Buffer.from(`${process.env.IMAGEKIT_PRIVATE_KEY}:`).toStrin
   "base64",
 );
 
+async function freeStorage(storageToFreeInBytes: number) {
+  const [userStorageInfo] = await db
+    .select()
+    .from(UserStorageInfo)
+    .where(eq(UserStorageInfo.userId, globalUserId));
+
+  //update user storage info
+  const newStorageUsed = (userStorageInfo.storageUsed ?? 0) - storageToFreeInBytes;
+  await db
+    .update(UserStorageInfo)
+    .set({
+      storageUsed: newStorageUsed,
+      storageUsedPercentage: Math.floor(
+        (newStorageUsed / (userStorageInfo.storageCapacity ?? 1)) * 100,
+      ),
+    })
+    .where(eq(UserStorageInfo.userId, globalUserId));
+}
+
 async function deleteFolder(folderId: string) {
   //Get all the children folders inside the given folder
   const childrenIds = await db
-    .select({ id: filesTable.id, isFolder: filesTable.isFolder })
+    .select({ id: filesTable.id, size: filesTable.size, isFolder: filesTable.isFolder })
     .from(filesTable)
     .where(eq(filesTable.parentId, folderId));
 
   const childrenFolderIds = childrenIds.filter((item) => item.isFolder === true);
-  const childrenFileIds = childrenIds.filter((item) => item.isFolder === false);
+  let totalSizeOfChildrenFilesInBytes = 0;
+  const childrenFileIds = childrenIds.filter((item) => {
+    totalSizeOfChildrenFilesInBytes += item.size;
+    return item.isFolder === false;
+  });
 
   for (const folder of childrenFolderIds) {
     deleteFolder(folder.id);
@@ -43,9 +66,16 @@ async function deleteFolder(folderId: string) {
   await db
     .delete(filesTable)
     .where(and(eq(filesTable.parentId, folderId), eq(filesTable.isFolder, false)));
+
+  //Free storage occupied by deleted files
+  freeStorage(totalSizeOfChildrenFilesInBytes);
 }
 
-async function deleteFileFromDB(imageKitFileId: string, fileId: string) {
+async function deleteFileFromDB(
+  imageKitFileId: string,
+  fileId: string,
+  fileSize: number,
+) {
   //Delete File from imageKit
   await axios.delete(`https://api.imagekit.io/v1/files/${imageKitFileId}`, {
     headers: {
@@ -55,6 +85,9 @@ async function deleteFileFromDB(imageKitFileId: string, fileId: string) {
 
   //Delete File from database
   await db.delete(filesTable).where(eq(filesTable.id, fileId));
+
+  //Free storage occupied by deleted files
+  freeStorage(fileSize);
 }
 
 export async function DELETE(
@@ -108,7 +141,7 @@ export async function DELETE(
         message: "Folder Deleted.",
       });
     } else {
-      if (file.fileId) await deleteFileFromDB(file.fileId, file.id);
+      if (file.fileId) await deleteFileFromDB(file.fileId, file.id, file.size);
       return NextResponse.json({
         success: true,
         message: "File Deleted.",
