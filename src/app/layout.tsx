@@ -4,6 +4,7 @@ import "./globals.css";
 
 import "dotenv/config";
 import { ClerkProvider } from "@clerk/nextjs";
+import { ThemeProvider } from "next-themes";
 import { Toaster } from "sonner";
 import { FilesAndFoldersStoreProvider } from "@/providers/filesAndFoldersStoreProvider";
 
@@ -31,10 +32,12 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
-        <Toaster richColors />
-        <ClerkProvider>
-          <FilesAndFoldersStoreProvider>{children}</FilesAndFoldersStoreProvider>
-        </ClerkProvider>
+        <ThemeProvider attribute="class" enableSystem defaultTheme="system">
+          <Toaster richColors />
+          <ClerkProvider>
+            <FilesAndFoldersStoreProvider>{children}</FilesAndFoldersStoreProvider>
+          </ClerkProvider>
+        </ThemeProvider>
       </body>
     </html>
   );

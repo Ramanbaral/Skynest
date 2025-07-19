@@ -90,7 +90,7 @@ export default function ProfilePage() {
     <div className="min-h-screen py-8 px-4">
       <Button
         variant="ghost"
-        className="absolute left-10 top-5 flex items-center space-x-2 text-gray-600 hover:text-gray-900"
+        className="absolute left-10 top-5 flex items-center space-x-2"
       >
         <ArrowLeft className="h-4 w-4" />
         <Link href="/dashboard">Dashboard</Link>
@@ -98,10 +98,8 @@ export default function ProfilePage() {
       <div className="max-w-2xl mx-auto space-y-6">
         {/* Header */}
         <div className="text-center">
-          <h1 className="text-3xl font-bold text-gray-900">Profile</h1>
-          <p className="text-gray-600 mt-2">
-            Manage your account settings and preferences
-          </p>
+          <h1 className="text-3xl font-bold">Profile</h1>
+          <p className=" mt-2">Manage your account settings and preferences</p>
         </div>
 
         {/* Profile Information Card */}
@@ -118,7 +116,7 @@ export default function ProfilePage() {
             {!isLoaded ? (
               <Skeleton className="w-full h-7" />
             ) : (
-              <CardTitle className="text-1xl">{userInf.name}</CardTitle>
+              <CardTitle className="text-2xl">{userInf.name}</CardTitle>
             )}
           </CardHeader>
           <CardContent className="space-y-4">
@@ -186,22 +184,22 @@ export default function ProfilePage() {
               {/* Storage Progress Bar */}
               <div className="space-y-2">
                 <div className="flex justify-between text-sm">
-                  <span className="text-gray-600">Used: {userInf.storage.used} MB</span>
-                  <span className="text-gray-600">Total: {userInf.storage.total} GB</span>
+                  <span>Used: {userInf.storage.used} MB</span>
+                  <span>Total: {userInf.storage.total} GB</span>
                 </div>
                 <Progress value={storageUsedPercentage} className="h-3" />
               </div>
 
               {/* Storage Statistics */}
               <div className="grid grid-cols-3 gap-4 pt-2">
-                <div className="text-center p-3 bg-blue-50 rounded-lg">
+                <div className="text-center p-3 bg-blue-100 rounded-lg">
                   <div className="text-2xl font-bold text-blue-600">
                     {storageUsedPercentage.toFixed(1)}%
                   </div>
                   <div className="text-xs text-blue-600 font-medium">Used</div>
                 </div>
 
-                <div className="text-center p-3 bg-green-50 rounded-lg">
+                <div className="text-center p-3 bg-green-100 rounded-lg">
                   <div className="text-2xl font-bold text-green-600">
                     {storageFreePercentage.toFixed(1)}%
                   </div>
@@ -209,7 +207,7 @@ export default function ProfilePage() {
                 </div>
 
                 <div className="text-center p-3 bg-gray-50 rounded-lg">
-                  <div className="text-2xl font-bold text-gray-600">
+                  <div className="text-2xl font-bold text-gray-700">
                     {userInf.storage.total}GB
                   </div>
                   <div className="text-xs text-gray-600 font-medium">Capacity</div>
@@ -245,10 +243,8 @@ export default function ProfilePage() {
           <CardContent className="pt-6">
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-4 sm:space-y-0">
               <div>
-                <h3 className="text-lg font-medium text-gray-900">Sign Out</h3>
-                <p className="text-sm text-gray-600">
-                  Sign out of your account on this device
-                </p>
+                <h3 className="text-lg font-medium">Sign Out</h3>
+                <p className="text-sm">Sign out of your account on this device</p>
               </div>
               <Button
                 variant="destructive"

@@ -5,6 +5,7 @@ import UserProfile from "./_component/userprofile";
 import UploadButton from "./_component/uploadBtn";
 import StorageInfo from "./_component/StorageInfo";
 import { Suspense } from "react";
+import { ThemeToggle } from "@/components/theme-toggle";
 
 export default async function Dashboard() {
   return (
@@ -21,8 +22,9 @@ export default async function Dashboard() {
           </Suspense>
         </div>
 
-        <div>
+        <div className="flex items-center gap-5">
           <UserProfile />
+          <ThemeToggle />
         </div>
       </div>
 
