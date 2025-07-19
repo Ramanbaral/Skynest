@@ -60,12 +60,11 @@ function UploadButton() {
 
       const uploadReq = await axios.post("/api/upload-file", data);
       if (uploadReq.data.success) {
-        toast.success("File Uploaded ✓", { position: "top-center" });
+        toast.success("File Uploaded ✓", { position: "top-right" });
         dialogClose.current?.click();
-        console.log(uploadReq.data);
         addFilesAndFolders(uploadReq.data.newFile);
       } else {
-        toast.error(uploadReq.data.message);
+        toast.error(uploadReq.data.message, { position: "top-center" });
       }
       setFiles(null);
     } catch (e) {

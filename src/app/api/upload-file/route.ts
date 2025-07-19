@@ -110,7 +110,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json(
         {
           success: false,
-          message: "File too large.",
+          message: "File too large. Limit: 5 MB",
         },
         { status: 400 },
       );
@@ -175,7 +175,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json(
       {
         success: true,
-        message: "file uploaded successfully.",
+        message: "File uploaded successfully.",
         newFile: newFile[0],
       },
       { status: 200 },
