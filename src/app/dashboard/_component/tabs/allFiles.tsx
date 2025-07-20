@@ -374,6 +374,7 @@ function AllFiles() {
                       } else if (e.currentTarget.dataset.filetype === "PDF") {
                         setCurrentPdfPreviewUrl(e.currentTarget.dataset.url as string);
                       }
+                      setFileToRenameId(null);
                     }}
                   >
                     {item.thumbnailUrl ? (
@@ -393,7 +394,15 @@ function AllFiles() {
                             {...register("newName")}
                             type="text"
                             autoComplete="off"
-                            autoFocus
+                            ref={(el) => {
+                              register("newName").ref(el);
+                              if (el && fileToRenameId === item.id) {
+                                setTimeout(() => {
+                                  el.focus();
+                                  el.select();
+                                }, 0);
+                              }
+                            }}
                           />
                         </form>
                       ) : (
