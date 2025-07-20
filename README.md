@@ -23,7 +23,6 @@
 
 ## 📸 Screenshots
 
-
 ## 🧪 Local Development
 
 ```bash
@@ -35,7 +34,7 @@ cd skynest
 npm install
 
 # Create your .env file from .env.example
-cp .env.example .env
+cp env-example .env
 
 # Start the development server
 npm run dev
