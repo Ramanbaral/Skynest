@@ -23,9 +23,9 @@
 
 ## 📸 Screenshots
 
-![Upload](https://imgur.com/xdhDHtL)
-![Dashboard](https://imgur.com/a/vKYmghm)
-![Profile](https://imgur.com/LYIoeor)
+![Dashboard](./screenshots/dashboardsc.png)
+![Upload](./screenshots/uplaodsc.png)
+![Profile](./screenshots/profilesc.png)
 
 ## 🧪 Local Development
 
