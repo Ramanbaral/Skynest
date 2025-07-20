@@ -1,6 +1,7 @@
 "use client";
 import Image from "next/image";
-import { useRef, useState, useEffect } from "react";
+import { useRef, useState, useEffect, useCallback } from "react";
+import { useDropzone } from "react-dropzone";
 
 import {
   Dialog,
@@ -26,6 +27,7 @@ import { useAuth } from "@clerk/nextjs";
 import { useSearchParams } from "next/navigation";
 import { useFilesAndFoldersStore } from "@/providers/filesAndFoldersStoreProvider";
 import { useUploadBtnRefStore } from "@/stores/uploadBtnRefStore";
+import Loader from "./loader";
 
 function UploadButton() {
   const MaxFileSizeInBytes = 5 * 1024 * 1024; //5MB
@@ -36,7 +38,7 @@ function UploadButton() {
   const uploadBtnRef = useRef<HTMLButtonElement>(null);
   const dialogClose = useRef<HTMLButtonElement>(null);
 
-  const [files, setFiles] = useState<FileList | null>(null);
+  const [files, setFiles] = useState<FileList | File[] | null>(null);
   const [isUploading, setIsUploading] = useState(false);
   const { addFilesAndFolders } = useFilesAndFoldersStore((state) => state);
 
@@ -52,7 +54,8 @@ function UploadButton() {
   const uploadFile = async () => {
     setIsUploading(true);
     try {
-      const file = files?.item(0) as File;
+      if (files === null) throw new Error("No files to Uplaod.");
+      const file = files[0] as File;
       const data = new FormData();
       data.set("file", file);
       data.set("userId", userId as string);
@@ -75,8 +78,29 @@ function UploadButton() {
     }
   };
 
+  const onDrop = useCallback((acceptedFiles: File[]) => {
+    if (acceptedFiles.length === 0) {
+      toast.error("Only Images and PDF File are supported.");
+      return;
+    }
+    setFiles(acceptedFiles);
+  }, []);
+  const { getRootProps, getInputProps, isDragActive } = useDropzone({
+    onDrop,
+    accept: {
+      "image/*": [],
+      "application/pdf": [],
+    },
+  });
+
+  const onDialogClose = (isOpen: boolean) => {
+    if (!isOpen) {
+      setFiles(null);
+    }
+  };
+
   return (
-    <Dialog>
+    <Dialog onOpenChange={onDialogClose}>
       <form>
         <DialogTrigger asChild>
           <Button
@@ -147,34 +171,40 @@ function UploadButton() {
                 className={`flex flex-col items-center justify-center gap-1 w-[25rem] h-[15rem] border border-dashed border-gray-400 mt-5 rounded-md ${
                   files !== null ? "hidden" : ""
                 }`}
+                {...getRootProps()}
               >
+                <input {...getInputProps()} />
                 <UploadCloud size={64} className="text-green-400" />
-                <p className="font-semibold">
-                  Drag and drop your image, pdf here, or{" "}
-                  <input
-                    ref={addFileInp}
-                    type="file"
-                    accept="image/*, .pdf, .doc, .docx"
-                    className="absolute right-[9999px]"
-                    onChange={(e) => {
-                      const file = e.target.files?.item(0);
+                {isDragActive ? (
+                  <p>Drop the file here ....</p>
+                ) : (
+                  <p className="font-semibold">
+                    Drag and drop your image, pdf here, or{" "}
+                    <input
+                      ref={addFileInp}
+                      type="file"
+                      accept="image/*, .pdf, .doc, .docx"
+                      className="absolute right-[9999px]"
+                      onChange={(e) => {
+                        const file = e.target.files?.item(0);
 
-                      if (file && file?.size > MaxFileSizeInBytes) {
-                        toast.error("File Size should be less than 5 MB.");
-                      } else {
-                        setFiles(e.target.files);
-                      }
-                    }}
-                  />
-                  <a
-                    className="text-blue-500 cursor-pointer"
-                    onClick={() => {
-                      addFileInp.current?.click();
-                    }}
-                  >
-                    browse
-                  </a>
-                </p>
+                        if (file && file?.size > MaxFileSizeInBytes) {
+                          toast.error("File Size should be less than 5 MB.");
+                        } else {
+                          setFiles(e.target.files);
+                        }
+                      }}
+                    />
+                    <a
+                      className="text-blue-500 cursor-pointer"
+                      onClick={() => {
+                        addFileInp.current?.click();
+                      }}
+                    >
+                      browse
+                    </a>
+                  </p>
+                )}
                 <p className="text-sm">File up to 5MB</p>
               </div>
 
@@ -182,19 +212,19 @@ function UploadButton() {
               {files && (
                 <div className="w-[25rem] flex flex-col gap-2 border rounded-md my-5 p-2">
                   <div className="relative w-full flex items-center gap-5 p-2 border border-primary rounded-md">
-                    {files.item(0)?.type == "application/pdf" ? (
+                    {files[0]?.type == "application/pdf" ? (
                       <FileIcon size={44} />
                     ) : (
                       <ImageIcon size={44} />
                     )}
                     <div>
                       <p className=" overflow-hidden font-semibold">
-                        {(files.item(0)?.name.length ?? 0) < 30
-                          ? files.item(0)?.name
-                          : files.item(0)?.name.substring(0, 30) + "..."}
+                        {(files[0]?.name.length ?? 0) < 30
+                          ? files[0]?.name
+                          : files[0]?.name.substring(0, 30) + "..."}
                       </p>
                       <p className="text-sm">
-                        {((files.item(0)?.size ?? 1) / (1024 * 1024)).toFixed(2)} MB
+                        {((files[0]?.size ?? 1) / (1024 * 1024)).toFixed(2)} MB
                       </p>
                     </div>
                   </div>
@@ -207,26 +237,9 @@ function UploadButton() {
                 onClick={uploadFile}
               >
                 {isUploading ? (
-                  <div role="status" className="flex gap-3 m-2">
-                    <svg
-                      aria-hidden="true"
-                      className="w-8 h-8 text-gray-200 animate-spin dark:text-gray-600 fill-primary"
-                      viewBox="0 0 100 101"
-                      fill="none"
-                      xmlns="http://www.w3.org/2000/svg"
-                    >
-                      <path
-                        d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z"
-                        fill="currentColor"
-                      />
-                      <path
-                        d="M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0491C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z"
-                        fill="currentFill"
-                      />
-                    </svg>
-                    <span className="sr-only">Loading...</span>
-                    Uploading
-                  </div>
+                  <>
+                    <Loader /> Uploading...
+                  </>
                 ) : (
                   <>
                     <Upload /> Upload

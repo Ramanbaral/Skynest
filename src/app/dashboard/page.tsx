@@ -9,7 +9,7 @@ import { ThemeToggle } from "@/components/theme-toggle";
 
 export default async function Dashboard() {
   return (
-    <div>
+    <div className="transition duration-300">
       <div className="w-screen flex justify-between items-center px-20 py-5 border border-accent">
         <div className="hidden md:flex gap-5 items-center cursor-pointer">
           <Image src={"/logo.png"} width={50} height={50} alt="logo" />
