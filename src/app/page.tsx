@@ -36,7 +36,7 @@ export default function Home() {
                 </Button>
               ) : (
                 <>
-                  <Button variant="ghost" asChild>
+                  <Button variant="ghost" className="bg-primary" asChild>
                     <Link href="/sign-in">Sign In</Link>
                   </Button>
                   <Button asChild>
@@ -81,12 +81,7 @@ export default function Home() {
                       <ArrowRight className="ml-2 h-5 w-5" />
                     </Link>
                   </Button>
-                  <Button
-                    size="lg"
-                    variant="outline"
-                    className="text-lg px-8 py-4 bg-transparent"
-                    asChild
-                  >
+                  <Button size="lg" className="text-lg px-8 py-4 bg-primary" asChild>
                     <Link href="/sign-in">Sign In</Link>
                   </Button>
                 </>
