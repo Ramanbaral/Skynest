@@ -25,7 +25,7 @@
 
 ![Upload](https://www.dropbox.com/scl/fi/0av0ndwj8ozrbbfrjmhjp/Screenshot-2025-07-20-at-6.05.37-PM.png?raw=1)
 ![Dashboard](https://www.dropbox.com/scl/fi/6kcus67c8bo6hb7yzsxj9/Screenshot-2025-07-20-at-6.06.09-PM.png?raw=1)
-![Profile](https://www.dropbox.com/scl/fi/lzrxhhgni6qkqbuubl6cs/Screenshot-2025-07-20-at-6.06.53-PM.png?raw=1)
+![Profile](https://www.dropbox.com/scl/fi/lzrxhhgni6qkqbuubl6cs/Screenshot-2025-07-20-at-6.06.53-PM.png?rlkey=bwcldscdsq205gfyfx1r5kmfw&st=j7gcfd0m&dl=0)
 
 ## 🧪 Local Development
 
